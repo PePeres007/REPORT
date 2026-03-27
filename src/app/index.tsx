@@ -1,5 +1,7 @@
+import { useEffect } from 'react'; 
 import { StyleSheet, View, Image, ActivityIndicator } from 'react-native';
 import { Feather } from '@expo/vector-icons'; 
+import { useRouter } from 'expo-router'; 
 
 /**
  * Componente Index (Tela de Carregamento / Splash Screen)
@@ -10,6 +12,20 @@ import { Feather } from '@expo/vector-icons';
  * * @returns {JSX.Element} A interface da tela de carregamento.
  */
 export default function Index() {
+  const router = useRouter(); // Inicializa o roteador
+
+  useEffect(() => {
+    // Cria um temporizador de 3 segundos (3000 milissegundos)
+    const timer = setTimeout(() => {
+      // Usamos 'replace' em vez de 'push'. 
+      // Isso impede que o usuário aperte o botão "Voltar" do celular e caia na tela de carregamento de novo.
+      router.replace('../login');
+    }, 3000);
+
+    // Limpeza de segurança: cancela o timer se o componente for fechado antes da hora
+    return () => clearTimeout(timer);
+  }, []); // A matriz vazia [] garante que isso rode apenas uma vez quando a tela abre
+
   return (
     <View style={styles.container}>
       
