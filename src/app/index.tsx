@@ -12,17 +12,28 @@ import { useRouter } from 'expo-router';
  * * @returns {JSX.Element} A interface da tela de carregamento.
  */
 export default function Index() {
-  const router = useRouter(); // Inicializa o roteador
+  /**
+   * Instância do roteador do Expo Router utilizada para navegação programática.
+   */
+  const router = useRouter(); 
+
+  /**
+   * Efeito colateral de montagem do componente (Lifecycle Mount).
+   * * Inicia um temporizador assim que a tela de carregamento é renderizada.
+   * Após o período estipulado, redireciona o usuário para a tela de autenticação.
+   * - Utiliza `router.replace` ao invés de `router.push` para substituir a rota atual 
+   * na pilha de navegação. Isso impede que o usuário retorne para a tela de Splash 
+   * ao pressionar o botão físico de "Voltar" do dispositivo.
+   * - Inclui uma função de limpeza (cleanup function) para abortar o `setTimeout` 
+   * caso o componente seja desmontado antes do tempo previsto, evitando vazamentos 
+   * de memória e tentativas de atualização de estado em componentes desmontados.
+   */
 
   useEffect(() => {
-    // Cria um temporizador de 3 segundos (3000 milissegundos)
     const timer = setTimeout(() => {
-      // Usamos 'replace' em vez de 'push'. 
-      // Isso impede que o usuário aperte o botão "Voltar" do celular e caia na tela de carregamento de novo.
       router.replace('../login');
     }, 3000);
 
-    // Limpeza de segurança: cancela o timer se o componente for fechado antes da hora
     return () => clearTimeout(timer);
   }, []); // A matriz vazia [] garante que isso rode apenas uma vez quando a tela abre
 
