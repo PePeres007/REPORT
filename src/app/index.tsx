@@ -48,7 +48,7 @@ export default function Index() {
       </View>
 
       {/* Seção Central: Logotipo da Aplicação
-        Carrega a marca d'água/logo centralizada. O resizeMode 'contain' é 
+        Carrega a marca logo centralizada. O resizeMode 'contain' é 
         utilizado para evitar distorções de proporção da imagem.
       */}
       <View style={styles.centerContainer}>

@@ -1,3 +1,6 @@
+import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import axios from 'axios';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
@@ -36,6 +39,8 @@ WebBrowser.maybeCompleteAuthSession();
 const API_URL = 'http://192.168.x.x:3000';
 
 export default function Login() {
+  // 1. ESTADOS (States)
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -144,29 +149,132 @@ export default function Login() {
             source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png' }}
             style={styles.googleIcon}
           />
-          <Text style={styles.googleText}>Google</Text>
+          <Text style={styles.emailText}>Google</Text>
         </TouchableOpacity>
 
+        {/* BOTÃO DE CADASTRO (Navega para a tela de cadastro) */}
+        <TouchableOpacity 
+          style={styles.buttonEmailContainer} 
+          onPress={() => router.push('../cadastro')}
+        >
+          <LinearGradient
+            colors={['#E2E8F0', '#FFFFFF', '#E2E8F0']} 
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.gradientBackground}
+          >
+            <MaterialCommunityIcons name="email-outline" size={24} color="#1E293B" style={{ marginRight: 10 }} />
+            <Text style={styles.emailText}>Email</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: '#FFFFFF', padding: 30, justifyContent: 'center' },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#1A1A1A', marginBottom: 40 },
-  inputContainer: { marginBottom: 20 },
-  label: { fontSize: 14, color: '#1A1A1A', fontWeight: '600', marginBottom: 8 },
-  input: { backgroundColor: '#F1F5F9', borderRadius: 8, padding: 15, fontSize: 16, borderWidth: 1, borderColor: '#E2E8F0', color: '#1A1A1A' },
-  inputError: { borderColor: '#EF4444' },
-  errorText: { color: '#EF4444', fontSize: 12, marginTop: 5 },
-  forgotPassword: { color: '#3B82F6', textAlign: 'right', marginBottom: 30, fontWeight: '500' },
-  buttonLogin: { backgroundColor: '#1E293B', padding: 18, borderRadius: 12, alignItems: 'center' },
-  buttonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
-  dividerContainer: { flexDirection: 'row', alignItems: 'center', marginVertical: 30 },
-  line: { flex: 1, height: 1, backgroundColor: '#E2E8F0' },
-  dividerText: { marginHorizontal: 10, color: '#64748B', fontSize: 14 },
-  buttonGoogle: { flexDirection: 'row', borderWidth: 1, borderColor: '#E2E8F0', padding: 15, borderRadius: 12, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' },
-  googleIcon: { width: 20, height: 20, marginRight: 10, resizeMode: 'contain' },
-  googleText: { fontSize: 16, color: '#1E293B', fontWeight: '500' }
+  container: {
+    flexGrow: 1,
+    backgroundColor: '#FFFFFF',
+    padding: 30,
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginBottom: 40,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    color: '#1A1A1A',
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    padding: 15,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    color: '#1A1A1A',
+  },
+  inputError: {
+    borderColor: '#EF4444',
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 12,
+    marginTop: 5,
+  },
+  forgotPassword: {
+    color: '#3B82F6',
+    textAlign: 'right',
+    marginBottom: 30,
+    fontWeight: '500',
+  },
+  buttonLogin: {
+    backgroundColor: '#1E293B',
+    padding: 18,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 30,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E2E8F0',
+  },
+  dividerText: {
+    marginHorizontal: 10,
+    color: '#64748B',
+    fontSize: 14,
+  },
+  
+  buttonGoogle: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    padding: 15,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    marginBottom: 12, // 
+  },
+  googleIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+    resizeMode: 'contain',
+  },
+  
+  buttonEmailContainer: {
+    borderRadius: 12,
+    overflow: 'hidden', 
+  },
+  gradientBackground: {
+    flexDirection: 'row',
+    padding: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emailText: {
+    fontSize: 16,
+    color: '#1E293B', 
+    fontWeight: '500',
+  }
 });
