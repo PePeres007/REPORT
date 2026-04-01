@@ -160,7 +160,6 @@ export default function Login() {
           onPress={() => router.push('../cadastro')}
         >
           <LinearGradient
-            // Cores do gradiente: de um cinza bem claro para um cinza um pouco mais escuro
             colors={['#E2E8F0', '#FFFFFF', '#E2E8F0']} 
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -257,7 +256,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
-    marginBottom: 12, // <-- Adicionei este espaço para separar do botão de baixo
+    marginBottom: 12, // 
   },
   googleIcon: {
     width: 20,
@@ -278,7 +277,7 @@ const styles = StyleSheet.create({
   },
   emailText: {
     fontSize: 16,
-    color: '#1E293B', // Mantém o texto escuro para dar contraste com o fundo cinza claro
+    color: '#1E293B', 
     fontWeight: '500',
   }
 });
