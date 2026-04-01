@@ -1,7 +1,7 @@
-import { useEffect } from 'react'; 
-import { StyleSheet, View, Image, ActivityIndicator } from 'react-native';
-import { Feather } from '@expo/vector-icons'; 
-import { useRouter } from 'expo-router'; 
+import { Feather } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
+import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 
 /**
  * Componente Index (Tela de Carregamento / Splash Screen)
