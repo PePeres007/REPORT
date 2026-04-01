@@ -1,3 +1,6 @@
+import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import axios from 'axios';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
@@ -24,6 +27,7 @@ const API_URL = 'http://192.168.x.x:3000';
 
 export default function Login() {
   // 1. ESTADOS (States)
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -147,9 +151,25 @@ export default function Login() {
             source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png' }} 
             style={styles.googleIcon} 
           />
-          <Text style={styles.googleText}>Google</Text>
+          <Text style={styles.emailText}>Google</Text>
         </TouchableOpacity>
 
+        {/* BOTÃO DE CADASTRO (Navega para a tela de cadastro) */}
+        <TouchableOpacity 
+          style={styles.buttonEmailContainer} 
+          onPress={() => router.push('../cadastro')}
+        >
+          <LinearGradient
+            // Cores do gradiente: de um cinza bem claro para um cinza um pouco mais escuro
+            colors={['#E2E8F0', '#FFFFFF', '#E2E8F0']} 
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.gradientBackground}
+          >
+            <MaterialCommunityIcons name="email-outline" size={24} color="#1E293B" style={{ marginRight: 10 }} />
+            <Text style={styles.emailText}>Email</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -227,6 +247,7 @@ const styles = StyleSheet.create({
     color: '#64748B',
     fontSize: 14,
   },
+  
   buttonGoogle: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -236,6 +257,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
+    marginBottom: 12, // <-- Adicionei este espaço para separar do botão de baixo
   },
   googleIcon: {
     width: 20,
@@ -243,9 +265,20 @@ const styles = StyleSheet.create({
     marginRight: 10,
     resizeMode: 'contain',
   },
-  googleText: {
+  
+  buttonEmailContainer: {
+    borderRadius: 12,
+    overflow: 'hidden', 
+  },
+  gradientBackground: {
+    flexDirection: 'row',
+    padding: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emailText: {
     fontSize: 16,
-    color: '#1E293B',
+    color: '#1E293B', // Mantém o texto escuro para dar contraste com o fundo cinza claro
     fontWeight: '500',
   }
 });
