@@ -54,7 +54,7 @@ export default function Cadastro() {
     }};
 
   return (
-    <View style={styles.container}>
+    <View>
       
       {/* --- CABEÇALHO COM BOTÃO DE VOLTAR --- */}
       <View style={styles.header}>
