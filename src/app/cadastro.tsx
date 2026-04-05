@@ -48,10 +48,13 @@ export default function Cadastro() {
   // 2. FUNÇÃO DE CADASTRO
 
   const handleSignUp = async () => {
-    if (emailError || email.length === 0 || password.length === 0) {
+    if (emailError || passwordError || email.length === 0 || password.length === 0) {
       Alert.alert('Erro', 'Por favor, preencha os campos corretamente.');
       return;
-    }};
+    } else{
+      router.push('../autenticacao')
+    }
+  };
 
   return (
     <View>
@@ -60,7 +63,7 @@ export default function Cadastro() {
       <View style={styles.header}>
         <TouchableOpacity 
           style={styles.backButton} 
-          onPress={() => router.back()} // Retorna para a tela de Login
+          onPress={() => router.push('../login')} // Retorna para a tela de Login
         >
           <Feather name="arrow-left" size={28} color="#1A1A1A" />
         </TouchableOpacity>
@@ -132,8 +135,12 @@ export default function Cadastro() {
           {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
         </View>
         {/* BOTÃO CRIAR CONTA */}
-        <TouchableOpacity style={styles.buttonSignUp} onPress={handleSignUp}>
+        <TouchableOpacity 
+          style={styles.buttonSignUp} 
+          onPress={handleSignUp}
+        >
           <Text style={styles.buttonText}>Criar Conta</Text>
+          
         </TouchableOpacity>
 
 
