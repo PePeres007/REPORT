@@ -1,8 +1,8 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import axios from 'axios';
 import * as Google from 'expo-auth-session/providers/google';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useState } from 'react';
 import {
@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { API_URL } from '../services/api';
 
 // 1. INICIALIZAÇÃO DO FIREBASE
 import { initializeApp } from "firebase/app";
@@ -36,7 +37,6 @@ const app = initializeApp(firebaseConfig);
 
 WebBrowser.maybeCompleteAuthSession();
 
-const API_URL = 'http://192.168.x.x:3000';
 
 export default function Login() {
   // 1. ESTADOS (States)
@@ -86,11 +86,18 @@ export default function Login() {
     try {
       const res = await axios.post(`${API_URL}/login`, {
         email: email.trim().toLowerCase(),
-        password: password
+        senha: password 
       });
-      Alert.alert('Sucesso', res.data.message);
+      
+      // Se a senha bater, o Python manda o "requer_2fa"
+      if (res.data.requer_2fa) {
+        // Envia o usuário para a tela de autenticação e leva o email dele junto!
+        router.push({ pathname: '../autenticacao', params: { userEmail: email.trim().toLowerCase() } });
+      }
+
     } catch (error: any) {
-      Alert.alert('Erro', 'Falha na conexão com o servidor.');
+      const mensagemErro = error.response?.data?.detail || 'Falha na conexão com o servidor.';
+      Alert.alert('Erro', mensagemErro);
     }
   };
 

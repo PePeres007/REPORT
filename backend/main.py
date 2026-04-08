@@ -10,7 +10,7 @@ app = FastAPI(title="API do REPORT!")
 # NOVO: Configuração de segurança (Permite que o React Native converse com a API)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:8000", "http://localhost:8000"], # Na produção, colocamos o domínio real aqui
+    allow_origins=["*"], # Na produção, colocamos o domínio real aqui
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,18 +1,20 @@
-import React, {useState} from 'react';
-import { View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView,
-  TextInput,
-  Alert,
-  Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 export default function Cadastro() {
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [nome, setNome] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -48,11 +50,35 @@ export default function Cadastro() {
   // 2. FUNÇÃO DE CADASTRO
 
   const handleSignUp = async () => {
-    if (emailError || passwordError || email.length === 0 || password.length === 0) {
+    // 1. Verifica se os campos estão vazios
+    if (emailError || passwordError || email.length === 0 || password.length === 0 || nome.length === 0) {
       Alert.alert('Erro', 'Por favor, preencha os campos corretamente.');
       return;
-    } else{
-      router.push('../autenticacao')
+    } 
+
+    try {
+      // 2. Envia os dados para o servidor Python
+      const response = await fetch('http://192.168.0.243:8000/cadastro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: nome,
+          email: email.trim().toLowerCase(),
+          senha: password
+        })
+      });
+
+      const data = await response.json();
+
+      // 3. Se deu certo, avisa o usuário e vai pro Login
+      if (response.ok) {
+        Alert.alert('Sucesso', 'Conta criada! Faça seu login.');
+        router.push('../login');
+      } else {
+        Alert.alert('Erro', data.detail || 'Erro ao cadastrar');
+      }
+    } catch (error) {
+      Alert.alert('Erro de Rede', 'Não foi possível conectar ao servidor.');
     }
   };
 
@@ -86,6 +112,8 @@ export default function Cadastro() {
             placeholder="Usuário01"
             autoCapitalize="words"
             keyboardType="default"
+            value={nome} 
+            onChangeText={setNome}
           />
         </View>
         {/* CAMPO DE DATA */}

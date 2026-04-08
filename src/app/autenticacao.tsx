@@ -1,19 +1,56 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  TextInput, 
+import { Feather } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Alert,
   KeyboardAvoidingView,
-  Platform 
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 
 export default function Autenticacao() {
   const router = useRouter();
+  // Pega o email que veio da tela de login
+  const { userEmail } = useLocalSearchParams(); 
+
+  // Função que vai disparar quando clicar em Confirmar
+  const handleVerify2FA = async () => {
+    const codigoCompleto = code.join(''); // Junta os 6 quadradinhos: ex "123456"
+
+    if (codigoCompleto.length < 6) {
+      Alert.alert('Erro', 'Digite o código completo de 6 dígitos.');
+      return;
+    }
+
+    try {
+      // ATENÇÃO: COLOQUE SEU IP DO PAPEL AQUI EMBAIXO
+      const response = await fetch('http://192.168.0.243:8000/validar-2fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: userEmail, 
+          codigo: codigoCompleto 
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert('Bem-vindo!', 'Login concluído com sucesso.');
+        // router.push('../mapa'); // <- Deixei comentado, depois ativamos pra ir pro mapa
+      } else {
+        Alert.alert('Código Inválido', data.detail || 'Tente novamente.');
+      }
+    } catch (error) {
+      Alert.alert('Erro', 'Falha na conexão com o servidor.');
+    }
+  };
+  
   
   // Estado para os 6 dígitos do código
   const [code, setCode] = useState(['', '', '', '', '', '']);
@@ -115,7 +152,7 @@ export default function Autenticacao() {
           </View>
 
           {/* BOTÕES */}
-          <TouchableOpacity style={styles.btnConfirm}>
+          <TouchableOpacity style={styles.btnConfirm} onPress={handleVerify2FA}>
             <Text style={styles.btnConfirmText}>Confirmar Código</Text>
           </TouchableOpacity>
 
