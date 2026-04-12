@@ -15,6 +15,7 @@ export default function Cadastro() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [nome, setNome] = useState('');
+  const [dataNascimento, setDataNascimento] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -36,6 +37,8 @@ export default function Cadastro() {
     } else {
       setEmailError('');
     }};
+
+
   // 2. FUNÇÃO DE CONFIRMAR SENHA
   const validateSenha = (text: string) => {
     setConfirmPassword(text); // Atualiza o valor do campo de confirmação
@@ -46,7 +49,21 @@ export default function Cadastro() {
       setPasswordError('');
     }
   };
-  
+
+  // 3. FUNÇÃO DE MÁSCARA DA DATA (DD/MM/AAAA)
+  const handleDateChange = (text: string) => {
+    let formatted = text.replace(/\D/g, ''); // Tira tudo que não for número
+    
+    if (formatted.length > 2) {
+      formatted = formatted.replace(/^(\d{2})(\d)/, '$1/$2'); // Põe a 1ª barra
+    }
+    if (formatted.length > 5) {
+      formatted = formatted.replace(/^(\d{2})\/(\d{2})(\d)/, '$1/$2/$3'); // Põe a 2ª barra
+    }
+    
+    setDataNascimento(formatted.substring(0, 10)); // Limita em 10 caracteres
+  };
+
   // 2. FUNÇÃO DE CADASTRO
 
   const handleSignUp = async () => {
@@ -122,8 +139,10 @@ export default function Cadastro() {
           <TextInput
             style={[styles.input]}
             placeholder="DD/MM/AAAA"
-            autoCapitalize="words"
             keyboardType="numeric"
+            value={dataNascimento}
+            onChangeText={handleDateChange}
+            maxLength={10}
           />
         </View>
         {/* CAMPO DE EMAIL */}
