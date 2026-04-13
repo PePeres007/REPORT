@@ -19,22 +19,12 @@ import {
   View
 } from 'react-native';
 
-
 // 1. INICIALIZAÇÃO DO FIREBASE
-import { initializeApp } from "firebase/app";
+
 // import { getAnalytics } from "firebase/analytics"; // Analytics costuma dar erro no Expo Go, use se necessário
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDgyRfFVQkstLhoZvMEdLJKKme2f6SoZfg",
-  authDomain: "report-463d6.firebaseapp.com",
-  projectId: "report-463d6",
-  storageBucket: "report-463d6.firebasestorage.app",
-  messagingSenderId: "362404266188",
-  appId: "1:362404266188:web:44fd3b3bdf2207c51d4269",
-  measurementId: "G-GPGD8NX7WG"
-};
 
-const app = initializeApp(firebaseConfig);
+
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -87,24 +77,8 @@ const handleLogin = async () => {
     if (emailError || !email || !password) {
       Alert.alert('Erro', 'Preencha os campos corretamente.');
       return;
-    }
-
-    try {
-      // O Firebase faz a mágica de validar a senha com o banco
-      await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
-      
-      Alert.alert("Sucesso", "Login realizado!");
-      // router.push('../home'); <- Descomente isso quando sua tela Home/Mapa estiver pronta
-      
-    } catch (error: any) {
-      let mensagem = "Falha na conexão.";
-      
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        mensagem = "E-mail ou senha incorretos.";
-      }
-      
-      Alert.alert('Erro de Acesso', mensagem);
-    }
+    } 
+    
   };
 
   return (

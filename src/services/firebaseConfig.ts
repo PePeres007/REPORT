@@ -1,23 +1,27 @@
-// arquivo: src/services/firebaseConfig.ts
-
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getApp, getApps, initializeApp } from "firebase/app";
+import { getReactNativePersistence, initializeAuth } from 'firebase/auth';
 import { getFirestore } from "firebase/firestore";
-// import { getStorage } from "firebase/storage"; // <-- Descomentaremos depois para as fotos!
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDgyRfFVQkstLhoZvMEdLJKKme2f6SoZfg",
-  authDomain: "report-463d6.firebaseapp.com",
-  projectId: "report-463d6",
-  storageBucket: "report-463d6.firebasestorage.app",
-  messagingSenderId: "362404266188",
-  appId: "1:362404266188:web:44fd3b3bdf2207c51d4269",
-  measurementId: "G-GPGD8NX7WG"
+  apiKey: "AIzaSyA3XMc8t-wOrrriBjdaSu7POKfGbh9thb8",
+  authDomain: "report-c3070.firebaseapp.com",
+  projectId: "report-c3070",
+  storageBucket: "report-c3070.firebasestorage.app",
+  messagingSenderId: "1092143546861",
+  appId: "1:1092143546861:web:29f582df4fb1940bed27e4",
+  measurementId: "G-S4YG6BWHX3"
 };
 
-// 1. Inicializa o aplicativo Firebase
-const app = initializeApp(firebaseConfig);
+// Evita inicializar o app duas vezes
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// 2. Exporta os serviços para o resto do app usar
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Configura a autenticação para lembrar do usuário mesmo se fechar o app
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage)
+});
+
+const db = getFirestore(app);
+
+export { auth, db };
+
