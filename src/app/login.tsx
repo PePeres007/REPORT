@@ -3,9 +3,9 @@ import * as Google from 'expo-auth-session/providers/google';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import React, { useEffect, useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from 'src/services/firebaseConfig.ts';
+import React, { useEffect, useState } from 'react';
+// Importa o 'auth' configurado saindo da pasta 'app' e entrando na 'services'
 import {
   Alert,
   Image,
@@ -18,6 +18,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { auth } from '../services/firebaseConfig';
 
 // 1. INICIALIZAÇÃO DO FIREBASE
 
@@ -77,8 +78,28 @@ const handleLogin = async () => {
     if (emailError || !email || !password) {
       Alert.alert('Erro', 'Preencha os campos corretamente.');
       return;
-    } 
-    
+    }
+
+    try {
+      // 1. O Firebase tenta fazer o login
+      await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
+      
+      // 2. Se a linha acima não der erro, o login foi um sucesso!
+      Alert.alert("Sucesso", "Login realizado!");
+      
+      // 3. Redireciona o usuário (Descomente quando a Home estiver pronta)
+      // router.push('../home');
+      
+    } catch (error: any) {
+      let mensagem = "Falha na conexão.";
+      
+      // 4. Traduz o erro do Firebase para algo legível
+      if (error.code === 'auth/invalid-credential') {
+        mensagem = "E-mail ou senha incorretos.";
+      }
+      
+      Alert.alert('Erro de Acesso', mensagem);
+    }
   };
 
   return (
