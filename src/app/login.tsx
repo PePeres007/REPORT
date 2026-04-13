@@ -1,5 +1,4 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import axios from 'axios';
 import * as Google from 'expo-auth-session/providers/google';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -17,23 +16,13 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { API_URL } from '../services/api';
 
 // 1. INICIALIZAÇÃO DO FIREBASE
-import { initializeApp } from "firebase/app";
+
 // import { getAnalytics } from "firebase/analytics"; // Analytics costuma dar erro no Expo Go, use se necessário
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDgyRfFVQkstLhoZvMEdLJKKme2f6SoZfg",
-  authDomain: "report-463d6.firebaseapp.com",
-  projectId: "report-463d6",
-  storageBucket: "report-463d6.firebasestorage.app",
-  messagingSenderId: "362404266188",
-  appId: "1:362404266188:web:44fd3b3bdf2207c51d4269",
-  measurementId: "G-GPGD8NX7WG"
-};
 
-const app = initializeApp(firebaseConfig);
+
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -82,23 +71,8 @@ export default function Login() {
     if (emailError || !email || !password) {
       Alert.alert('Erro', 'Preencha os campos corretamente.');
       return;
-    }
-    try {
-      const res = await axios.post(`${API_URL}/login`, {
-        email: email.trim().toLowerCase(),
-        senha: password 
-      });
-      
-      // Se a senha bater, o Python manda o "requer_2fa"
-      if (res.data.requer_2fa) {
-        // Envia o usuário para a tela de autenticação e leva o email dele junto!
-        router.push({ pathname: '../autenticacao', params: { userEmail: email.trim().toLowerCase() } });
-      }
-
-    } catch (error: any) {
-      const mensagemErro = error.response?.data?.detail || 'Falha na conexão com o servidor.';
-      Alert.alert('Erro', mensagemErro);
-    }
+    } 
+    
   };
 
   return (

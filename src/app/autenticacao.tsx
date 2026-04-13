@@ -18,7 +18,7 @@ export default function Autenticacao() {
   // Pega o email que veio da tela de login
   const { userEmail } = useLocalSearchParams(); 
 
-  // Função que vai disparar quando clicar em Confirmar
+// Função que vai disparar quando clicar em Confirmar
   const handleVerify2FA = async () => {
     const codigoCompleto = code.join(''); // Junta os 6 quadradinhos: ex "123456"
 
@@ -27,28 +27,8 @@ export default function Autenticacao() {
       return;
     }
 
-    try {
-      // ATENÇÃO: COLOQUE SEU IP DO PAPEL AQUI EMBAIXO
-      const response = await fetch('http://192.168.0.243:8000/validar-2fa', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email: userEmail, 
-          codigo: codigoCompleto 
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert('Bem-vindo!', 'Login concluído com sucesso.');
-        // router.push('../mapa'); // <- Deixei comentado, depois ativamos pra ir pro mapa
-      } else {
-        Alert.alert('Código Inválido', data.detail || 'Tente novamente.');
-      }
-    } catch (error) {
-      Alert.alert('Erro', 'Falha na conexão com o servidor.');
-    }
+    // A lógica de verificação do Firebase (se formos usar) entrará aqui depois!
+    Alert.alert('Aviso', 'Verificação 2FA em manutenção para o novo sistema.');
   };
   
   
