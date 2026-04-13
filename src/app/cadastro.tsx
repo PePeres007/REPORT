@@ -67,35 +67,18 @@ export default function Cadastro() {
   // 2. FUNÇÃO DE CADASTRO
 
   const handleSignUp = async () => {
-    // 1. Verifica se os campos estão vazios
     if (emailError || passwordError || email.length === 0 || password.length === 0 || nome.length === 0) {
       Alert.alert('Erro', 'Por favor, preencha os campos corretamente.');
       return;
     } 
 
     try {
-      // 2. Envia os dados para o servidor Python
-      const response = await fetch('http://192.168.0.243:8000/cadastro', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nome: nome,
-          email: email.trim().toLowerCase(),
-          senha: password
-        })
-      });
+      // O código de criação de usuário do Firebase entrará aqui!
+      Alert.alert('Aviso', 'Aguardando integração com Firebase...');
 
-      const data = await response.json();
-
-      // 3. Se deu certo, avisa o usuário e vai pro Login
-      if (response.ok) {
-        Alert.alert('Sucesso', 'Conta criada! Faça seu login.');
-        router.push('../login');
-      } else {
-        Alert.alert('Erro', data.detail || 'Erro ao cadastrar');
-      }
+      // router.push('../login'); <- Descomentaremos isso depois
     } catch (error) {
-      Alert.alert('Erro de Rede', 'Não foi possível conectar ao servidor.');
+      Alert.alert('Erro', 'Não foi possível criar a conta.');
     }
   };
 

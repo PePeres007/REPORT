@@ -1,10 +1,11 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import axios from 'axios';
 import * as Google from 'expo-auth-session/providers/google';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useState } from 'react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from 'src/services/firebaseConfig.ts';
 import {
   Alert,
   Image,
@@ -17,7 +18,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { API_URL } from '../services/api';
+
 
 // 1. INICIALIZAÇÃO DO FIREBASE
 import { initializeApp } from "firebase/app";
@@ -78,26 +79,31 @@ export default function Login() {
     }
   };
 
-  const handleLogin = async () => {
+  // Lembre-se de colocar isso lá nos seus imports no topo:
+// import { signInWithEmailAndPassword } from 'firebase/auth';
+// import { auth } from '../services/firebaseConfig';
+
+const handleLogin = async () => {
     if (emailError || !email || !password) {
       Alert.alert('Erro', 'Preencha os campos corretamente.');
       return;
     }
-    try {
-      const res = await axios.post(`${API_URL}/login`, {
-        email: email.trim().toLowerCase(),
-        senha: password 
-      });
-      
-      // Se a senha bater, o Python manda o "requer_2fa"
-      if (res.data.requer_2fa) {
-        // Envia o usuário para a tela de autenticação e leva o email dele junto!
-        router.push({ pathname: '../autenticacao', params: { userEmail: email.trim().toLowerCase() } });
-      }
 
+    try {
+      // O Firebase faz a mágica de validar a senha com o banco
+      await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
+      
+      Alert.alert("Sucesso", "Login realizado!");
+      // router.push('../home'); <- Descomente isso quando sua tela Home/Mapa estiver pronta
+      
     } catch (error: any) {
-      const mensagemErro = error.response?.data?.detail || 'Falha na conexão com o servidor.';
-      Alert.alert('Erro', mensagemErro);
+      let mensagem = "Falha na conexão.";
+      
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        mensagem = "E-mail ou senha incorretos.";
+      }
+      
+      Alert.alert('Erro de Acesso', mensagem);
     }
   };
 
