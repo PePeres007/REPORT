@@ -1,19 +1,7 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true,
-    "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "firebase/*": [
-        "./node_modules/firebase/*"
-      ]
-    }
+    "strict": true
   },
   "include": [
     "**/*.ts",

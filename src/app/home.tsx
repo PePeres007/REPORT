@@ -1,6 +1,23 @@
+import { addDoc, collection } from "firebase/firestore";
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
+import { db } from "../services/firebaseConfig";
+
+async function testeFirebase() {
+  try {
+    await addDoc(collection(db, "teste"), {
+      nome: "Gabriel",
+      status: "funcionando"
+    });
+
+    console.log("🔥 Firebase funcionando!");
+  } catch (error) {
+    console.log("❌ Erro:", error);
+  }
+}
+
+testeFirebase();
 
 export default function MapaScreen() {
   // Coordenadas iniciais do Recife (Marco Zero / Centro)
