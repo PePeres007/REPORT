@@ -9,8 +9,7 @@ import { Auth, getAuth, initializeAuth } from 'firebase/auth';
 import { getReactNativePersistence } from 'firebase/auth';
 
 const firebaseConfig = {
-  // ATENÇÃO: Cole a sua apiKey verdadeira aqui dentro das aspas!
-  apiKey: "SUA_CHAVE_API_CORRETA_AQUI", 
+  apiKey: "AIzaSyA3XMc8t-w0rrriBjdaSu7POKfGbh9thb8",
   authDomain: "report-c3070.firebaseapp.com",
   projectId: "report-c3070",
   storageBucket: "report-c3070.firebasestorage.app",
