@@ -88,7 +88,7 @@ const handleLogin = async () => {
       Alert.alert("Sucesso", "Login realizado!");
       
       // 3. Redireciona o usuário (Descomente quando a Home estiver pronta)
-      // router.push('../home');
+      router.push('../home');
       
     } catch (error: any) {
       let mensagem = "Falha na conexão.";

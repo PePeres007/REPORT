@@ -79,7 +79,7 @@ export default function Cadastro() {
       });
 
       Alert.alert('Sucesso', 'Conta criada com sucesso!');
-      router.push('../login');
+      router.push('../home');
 
     } catch (error: any) {
       let mensagem = "Erro ao cadastrar.";
