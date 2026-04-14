@@ -1,8 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getApp, getApps, initializeApp } from "firebase/app";
-// Unificamos tudo do auth em uma única linha, direto da raiz 'firebase/auth'
-import { getAuth, getReactNativePersistence, initializeAuth } from 'firebase/auth';
 import { getFirestore } from "firebase/firestore";
+
+// Separamos os imports do Auth:
+import { getAuth, initializeAuth } from 'firebase/auth';
+
+// Colocamos o silenciador EXATAMENTE acima da palavra que está dando erro
+// @ts-ignore
+import { getReactNativePersistence } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyA3XMc8t-w0rrriBjdaSu7POKfGbh9thb8",
