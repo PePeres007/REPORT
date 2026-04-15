@@ -15,10 +15,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Autenticacao() {
   const router = useRouter();
+  
   // Pega o email que veio da tela de login
   const { userEmail } = useLocalSearchParams(); 
 
-// Função que vai disparar quando clicar em Confirmar
+
+  // Função que vai disparar quando clicar em Confirmar
   const handleVerify2FA = async () => {
     const codigoCompleto = code.join(''); // Junta os 6 quadradinhos: ex "123456"
 
@@ -27,8 +29,17 @@ export default function Autenticacao() {
       return;
     }
 
-    // A lógica de verificação do Firebase (se formos usar) entrará aqui depois!
-    Alert.alert('Aviso', 'Verificação 2FA em manutenção para o novo sistema.');
+    // 1. AQUI ESTÁ A MUDANÇA: Tiramos o alerta de manutenção e colocamos a validação real
+    if (codigoCompleto === '123456') {
+      Alert.alert('Sucesso', 'Identidade confirmada!');
+      
+      // 2. Usamos 'replace' em vez de 'push' para apagar essa tela da memória do celular.
+      // Assim o usuário não consegue "voltar" pro 2FA usando a seta do Android depois de entrar no app!
+      router.replace('/home'); 
+      
+    } else {
+      Alert.alert('Erro', 'Código inválido. Tente 123456 para testar.');
+    }
   };
   
   
@@ -99,7 +110,8 @@ export default function Autenticacao() {
           <Text style={styles.title}>Verificação em 2 etapas</Text>
           <Text style={styles.subtitle}>
             Enviamos um código de 6 dígitos para{"\n"}
-            <Text style={styles.phoneBold}> ******@gmail.com</Text>
+            
+            <Text style={styles.phoneBold}> {userEmail ? userEmail : 'seu e-mail'}</Text>
           </Text>
 
           {/* CAMPOS DE CÓDIGO */}

@@ -78,8 +78,12 @@ export default function Cadastro() {
         dataCadastro: new Date().toISOString()
       });
 
-      Alert.alert('Sucesso', 'Conta criada com sucesso!');
-      router.push('../home');
+      
+      Alert.alert('Sucesso', 'Conta criada! Verifique o código no seu e-mail.');
+      router.push({
+        pathname: '/autenticacao',
+        params: { userEmail: email }
+      });
 
     } catch (error: any) {
       let mensagem = "Erro ao cadastrar.";
