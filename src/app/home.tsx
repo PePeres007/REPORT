@@ -1,5 +1,5 @@
 import { addDoc, collection } from "firebase/firestore";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
 import { db } from "../services/firebaseConfig";
@@ -17,8 +17,6 @@ async function testeFirebase() {
   }
 }
 
-testeFirebase();
-
 export default function MapaScreen() {
   // Coordenadas iniciais do Recife (Marco Zero / Centro)
   const initialRegion = {
@@ -27,6 +25,10 @@ export default function MapaScreen() {
     latitudeDelta: 0.015, // Controla o zoom
     longitudeDelta: 0.015,
   };
+
+  useEffect(() => {
+    testeFirebase();
+  }, []);
 
   // Estado para guardar onde o usuário quer registrar a denúncia
   const [denunciaLocal, setDenunciaLocal] = useState<{latitude: number, longitude: number} | null>(null);
