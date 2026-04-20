@@ -1,4 +1,4 @@
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
@@ -18,6 +18,25 @@ async function testeFirebase() {
 }
 
 export default function MapaScreen() {
+
+  // 1. Estado para guardar as denúncias que vêm do banco
+  const [listaDenuncias, setListaDenuncias] = useState<any[]>([]);
+
+  // 2. Função que busca os dados no Firebase
+  const carregarDenuncias = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "denuncias"));
+      const dados: any[] = [];
+      querySnapshot.forEach((doc) => {
+        dados.push({ id: doc.id, ...doc.data() });
+      });
+      setListaDenuncias(dados);
+      console.log("✅ Denúncias carregadas!");
+    } catch (error) {
+      console.log("❌ Erro ao buscar:", error);
+    }
+  };
+
   // Coordenadas iniciais do Recife (Marco Zero / Centro)
   const initialRegion = {
     latitude: -8.068733,
@@ -26,8 +45,8 @@ export default function MapaScreen() {
     longitudeDelta: 0.015,
   };
 
-  useEffect(() => {
-    testeFirebase();
+useEffect(() => {
+    carregarDenuncias();
   }, []);
 
   // Estado para guardar onde o usuário quer registrar a denúncia
@@ -51,7 +70,19 @@ export default function MapaScreen() {
           maximumZ={19}
           flipY={false}
         />
-
+        {/* Passo 4: Renderiza os pinos que já estão no banco */}
+        {listaDenuncias.map((item) => (
+          <Marker
+            key={item.id}
+            coordinate={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+            }}
+            title={item.titulo || "Denúncia"}
+            description={item.descricao || "Relato de problema"}
+            pinColor="purple" 
+          />
+        ))}
         {/* Mostra um pino vermelho onde o usuário clicou para denunciar */}
         {denunciaLocal && (
           <Marker 
