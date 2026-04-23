@@ -3,39 +3,25 @@ import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 
-/**
- * Componente Index (Tela de Carregamento / Splash Screen)
- * * Esta é a primeira tela renderizada pelo aplicativo após a compilação nativa.
- * Seu objetivo é manter a identidade visual do app na tela e exibir um 
- * indicador de atividade enquanto validações de sessão, carregamento de fontes 
- * ou rotas iniciais são processadas em segundo plano.
- * * @returns {JSX.Element} A interface da tela de carregamento.
- */
-export default function Index() {
-  /**
-   * Instância do roteador do Expo Router utilizada para navegação programática.
-   */
-  const router = useRouter(); 
+// Importando a classe
+import { controladorIndex } from '../controllers/controlador_index';
 
-  /**
-   * Efeito colateral de montagem do componente (Lifecycle Mount).
-   * * Inicia um temporizador assim que a tela de carregamento é renderizada.
-   * Após o período estipulado, redireciona o usuário para a tela de autenticação.
-   * - Utiliza `router.replace` ao invés de `router.push` para substituir a rota atual 
-   * na pilha de navegação. Isso impede que o usuário retorne para a tela de Splash 
-   * ao pressionar o botão físico de "Voltar" do dispositivo.
-   * - Inclui uma função de limpeza (cleanup function) para abortar o `setTimeout` 
-   * caso o componente seja desmontado antes do tempo previsto, evitando vazamentos 
-   * de memória e tentativas de atualização de estado em componentes desmontados.
-   */
+export default function Index() {
+  const router = useRouter();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace('../login');
-    }, 3000);
+    // Instanciando o objeto
+    // transmitindo o router e o tempo (3 segundos) para o construtor
+    const controlesIndex = new controladorIndex(router, 3000);
 
-    return () => clearTimeout(timer);
-  }, []); // A matriz vazia [] garante que isso rode apenas uma vez quando a tela abre
+    // Executa o método do objeto
+    const timer = controlesIndex.timerNavigation();
+
+    // Limpeza usando o método do objeto
+    return () => {
+      controlesIndex.abortNavigation(timer);
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
