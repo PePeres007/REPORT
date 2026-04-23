@@ -66,7 +66,7 @@ useEffect(() => {
       >
         {/* Renderiza as imagens do OpenStreetMap */}
         <UrlTile
-          urlTemplate="https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          urlTemplate="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
           maximumZ={19}
           flipY={false}
         />
