@@ -12,93 +12,49 @@ import {
 } from 'react-native';
 
 // Imports do Firebase
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../services/firebaseConfig';
+import { controladorCadastro } from '../controllers/controlador_cadastro';
 
 export default function Cadastro() {
   const router = useRouter();
+  const controlador = new controladorCadastro(router);
+
   const [email, setEmail] = useState('');
   const [nome, setNome] = useState('');
   const [dataNascimento, setDataNascimento] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
-  // 1. VALIDAÇÃO DE E-MAIL
-  const validateEmail = (text: string) => {
+  // --- EVENTOS DE INTERFACE ---
+  const handleEmailChange = (text: string) => {
     setEmail(text);
-    const cleanEmail = text.trim().toLowerCase();
-    const allowedDomains = ['@gmail.com', '@hotmail.com'];
+    setEmailError(controlador.validarFormatoEmail(text));
+  };
 
-    if (cleanEmail.length > 0) {
-      const isValid = allowedDomains.some(domain => cleanEmail.endsWith(domain));
-      setEmailError(isValid ? '' : 'Use apenas e-mails @gmail.com ou @hotmail.com');
-    } else {
-      setEmailError('');
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    setPasswordError(controlador.validarSenha(text));
+    if (confirmPassword.length > 0) {
+      setConfirmPasswordError(controlador.validarConfirmacaoSenha(text, confirmPassword));
     }
   };
 
-  // 2. CONFIRMAR SENHA
-  const validateSenha = (text: string) => {
+  const handleConfirmPasswordChange = (text: string) => {
     setConfirmPassword(text);
-    if (text.length > 0 && text !== password) {
-      setPasswordError('As senhas não coincidem');
-    } else {
-      setPasswordError('');
-    }
+    setConfirmPasswordError(controlador.validarConfirmacaoSenha(password, text));
   };
 
-  // 3. MÁSCARA DA DATA
   const handleDateChange = (text: string) => {
-    let formatted = text.replace(/\D/g, '');
-    if (formatted.length > 2) formatted = formatted.replace(/^(\d{2})(\d)/, '$1/$2');
-    if (formatted.length > 5) formatted = formatted.replace(/^(\d{2})\/(\d{2})(\d)/, '$1/$2/$3');
-    setDataNascimento(formatted.substring(0, 10));
-  };
-
-  // 4. FUNÇÃO DE CADASTRO REAL (FIREBASE)
-  const handleSignUp = async () => {
-    if (emailError || passwordError || !email || !password || !nome) {
-      Alert.alert('Erro', 'Preencha os campos corretamente.');
-      return;
-    }
-
-    try {
-      // Cria o usuário na Autenticação
-      const userCredential = await createUserWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
-      const user = userCredential.user;
-
-      // Salva os dados no Banco de Dados (Firestore)
-      await setDoc(doc(db, "usuarios", user.uid), {
-        nome: nome,
-        email: email.trim().toLowerCase(),
-        dataNascimento: dataNascimento,
-        dataCadastro: new Date().toISOString()
-      });
-
-
-      Alert.alert('Sucesso', 'Conta criada! Verifique o código no seu e-mail.');
-      router.push({
-        pathname: '/autenticacao',
-        params: { userEmail: email }
-      });
-
-    } catch (error: any) {
-      let mensagem = "Erro ao cadastrar.";
-      if (error.code === 'auth/email-already-in-use') mensagem = "Este e-mail já está em uso.";
-      if (error.code === 'auth/weak-password') mensagem = "A senha deve ter no mínimo 6 dígitos.";
-
-      Alert.alert('Erro', mensagem);
-      console.error(error);
-    }
+    const dataFormatada = controlador.aplicarMascaraData(text);
+    setDataNascimento(dataFormatada);
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFF' }}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.push('../login')}>
+        <TouchableOpacity style={styles.backButton} onPress={() => controlador.voltar()}>
           <Feather name="arrow-left" size={28} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Criar Conta</Text>
@@ -120,22 +76,23 @@ export default function Cadastro() {
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Email</Text>
-          <TextInput style={[styles.input, emailError ? styles.inputError : null]} placeholder="exemplo@gmail.com" value={email} onChangeText={validateEmail} autoCapitalize="none" keyboardType="email-address" />
+          <TextInput style={[styles.input, emailError ? styles.inputError : null]} placeholder="exemplo@gmail.com" value={email} onChangeText={handleEmailChange} autoCapitalize="none" keyboardType="email-address" />
           {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
         </View>
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Senha</Text>
-          <TextInput style={styles.input} placeholder="Mínimo 6 caracteres" secureTextEntry value={password} onChangeText={setPassword} />
+          <TextInput style={[styles.input, passwordError ? styles.inputError : null]} placeholder="Mínimo 6 caracteres" secureTextEntry value={password} onChangeText={handlePasswordChange} />
+          {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
         </View>
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Confirmar a senha</Text>
-          <TextInput style={[styles.input, passwordError ? styles.inputError : null]} placeholder="Repita a senha" secureTextEntry value={confirmPassword} onChangeText={validateSenha} />
-          {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+          <TextInput style={[styles.input, confirmPasswordError ? styles.inputError : null]} placeholder="Repita a senha" secureTextEntry value={confirmPassword} onChangeText={handleConfirmPasswordChange} />
+          {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
         </View>
 
-        <TouchableOpacity style={styles.buttonSignUp} onPress={handleSignUp}>
+        <TouchableOpacity style={styles.buttonSignUp} onPress={() => controlador.realizarCadastro(nome, dataNascimento, email, password, confirmPassword, emailError)}>
           <Text style={styles.buttonText}>Criar Conta</Text>
         </TouchableOpacity>
       </ScrollView>
