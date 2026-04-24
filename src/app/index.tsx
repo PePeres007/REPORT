@@ -15,11 +15,11 @@ export default function Index() {
     const controlesIndex = new controladorIndex(router, 3000);
 
     // Executa o método do objeto
-    const timer = controlesIndex.timerNavigation();
+    const timer = controlesIndex.timerNavegacao();
 
     // Limpeza usando o método do objeto
     return () => {
-      controlesIndex.abortNavigation(timer);
+      controlesIndex.stoptNavegacao(timer);
     };
   }, []);
 

@@ -18,17 +18,13 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { auth } from '../services/firebaseConfig';
-
+import { controladorLogin } from '../controllers/controlador_login';
 // 1. INICIALIZAÇÃO DO FIREBASE
 
 // import { getAnalytics } from "firebase/analytics"; // Analytics costuma dar erro no Expo Go, use se necessário
 
 
-
-
 WebBrowser.maybeCompleteAuthSession();
-
 
 export default function Login() {
   // 1. ESTADOS (States)
@@ -37,69 +33,27 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
 
-  // 2. CONFIGURAÇÃO LOGIN GOOGLE (COM ANDROID)
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    // ID da Web (Sempre necessário)
-    webClientId: '1029108826846-uhe1v7vshnbt8pcrn8r76r0clm540n0q.apps.googleusercontent.com',
-   
-    // ID do iOS (Bundle ID: host.exp.exponent)
-    iosClientId: 'COLE_AQUI_O_SEU_ID_IOS.apps.googleusercontent.com',
+  // 2. Instanciando o objeto
+  const controlador = new controladorLogin(router);
 
-    // ID do Android (O que estava faltando e causou o erro!)
+  // --- CONFIGURAÇÃO LOGIN GOOGLE ---
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId: '1029108826846-uhe1v7vshnbt8pcrn8r76r0clm540n0q.apps.googleusercontent.com',
+    iosClientId: 'COLE_AQUI_O_SEU_NOVO_ID_IOS.apps.googleusercontent.com',
     androidClientId: 'COLE_AQUI_O_SEU_ID_ANDROID.apps.googleusercontent.com',
   });
 
+  // Delega o processamento da resposta do Google para o Controlador
   useEffect(() => {
-    if (response?.type === 'success') {
-      const { authentication } = response;
-      console.log("Token recebido!");
-      Alert.alert("Sucesso", "Login realizado!");
-    }
+    controlador.processarRetornoGoogle(response);
   }, [response]);
 
-  const validateEmail = (text: string) => {
+  // Função disparada a cada letra digitada no campo de e-mail
+  const handleEmailChange = (text: string) => {
     setEmail(text);
-    const cleanEmail = text.trim().toLowerCase();
-    const allowedDomains = ['@gmail.com', '@hotmail.com'];
-   
-    if (cleanEmail.length > 0) {
-      const isValid = allowedDomains.some(domain => cleanEmail.endsWith(domain));
-      setEmailError(isValid ? '' : 'Use apenas e-mails @gmail.com ou @hotmail.com');
-    } else {
-      setEmailError('');
-    }
-  };
-
-  // Lembre-se de colocar isso lá nos seus imports no topo:
-// import { signInWithEmailAndPassword } from 'firebase/auth';
-// import { auth } from '../services/firebaseConfig';
-
-const handleLogin = async () => {
-    if (emailError || !email || !password) {
-      Alert.alert('Erro', 'Preencha os campos corretamente.');
-      return;
-    }
-
-    try {
-      // 1. O Firebase tenta fazer o login
-      await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
-      
-      // 2. Se a linha acima não der erro, o login foi um sucesso!
-      Alert.alert("Sucesso", "Login realizado!");
-      
-      // 3. Redireciona o usuário (Descomente quando a Home estiver pronta)
-      router.replace('/home');
-      
-    } catch (error: any) {
-      let mensagem = "Falha na conexão.";
-      
-      // 4. Traduz o erro do Firebase para algo legível
-      if (error.code === 'auth/invalid-credential') {
-        mensagem = "E-mail ou senha incorretos.";
-      }
-      
-      Alert.alert('Erro de Acesso', mensagem);
-    }
+    // Pede ao controlador para validar e guarda a mensagem de erro (se houver)
+    const erroCalculado = controlador.validarFormatoEmail(text);
+    setEmailError(erroCalculado);
   };
 
   return (
@@ -116,7 +70,7 @@ const handleLogin = async () => {
             style={[styles.input, emailError ? styles.inputError : null]}
             placeholder="Usuário@email.com"
             value={email}
-            onChangeText={validateEmail}
+            onChangeText={handleEmailChange}
             autoCapitalize="none"
             keyboardType="email-address"
           />
@@ -127,7 +81,7 @@ const handleLogin = async () => {
           <Text style={styles.label}>Senha</Text>
           <TextInput
             style={styles.input}
-            placeholder="No mínimo 4 caracteres"
+            placeholder="No mínimo 6 caracteres"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -138,7 +92,7 @@ const handleLogin = async () => {
           <Text style={styles.forgotPassword}>Esqueceu a senha?</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin}>
+        <TouchableOpacity style={styles.buttonLogin} onPress={() => controlador.realizarLogin(email, password, emailError)}>
           <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
 
@@ -161,12 +115,12 @@ const handleLogin = async () => {
         </TouchableOpacity>
 
         {/* BOTÃO DE CADASTRO (Navega para a tela de cadastro) */}
-        <TouchableOpacity 
-          style={styles.buttonEmailContainer} 
-          onPress={() => router.push('../cadastro')}
+        <TouchableOpacity
+          style={styles.buttonEmailContainer}
+          onPress={() => controlador.navegarPara('/cadastro')}
         >
           <LinearGradient
-            colors={['#E2E8F0', '#FFFFFF', '#E2E8F0']} 
+            colors={['#E2E8F0', '#FFFFFF', '#E2E8F0']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.gradientBackground}
@@ -251,7 +205,7 @@ const styles = StyleSheet.create({
     color: '#64748B',
     fontSize: 14,
   },
-  
+
   buttonGoogle: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -269,10 +223,10 @@ const styles = StyleSheet.create({
     marginRight: 10,
     resizeMode: 'contain',
   },
-  
+
   buttonEmailContainer: {
     borderRadius: 12,
-    overflow: 'hidden', 
+    overflow: 'hidden',
   },
   gradientBackground: {
     flexDirection: 'row',
@@ -282,7 +236,7 @@ const styles = StyleSheet.create({
   },
   emailText: {
     fontSize: 16,
-    color: '#1E293B', 
+    color: '#1E293B',
     fontWeight: '500',
   }
 });

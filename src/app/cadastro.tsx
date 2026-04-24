@@ -31,7 +31,7 @@ export default function Cadastro() {
     setEmail(text);
     const cleanEmail = text.trim().toLowerCase();
     const allowedDomains = ['@gmail.com', '@hotmail.com'];
-    
+
     if (cleanEmail.length > 0) {
       const isValid = allowedDomains.some(domain => cleanEmail.endsWith(domain));
       setEmailError(isValid ? '' : 'Use apenas e-mails @gmail.com ou @hotmail.com');
@@ -78,7 +78,7 @@ export default function Cadastro() {
         dataCadastro: new Date().toISOString()
       });
 
-      
+
       Alert.alert('Sucesso', 'Conta criada! Verifique o código no seu e-mail.');
       router.push({
         pathname: '/autenticacao',
@@ -89,7 +89,7 @@ export default function Cadastro() {
       let mensagem = "Erro ao cadastrar.";
       if (error.code === 'auth/email-already-in-use') mensagem = "Este e-mail já está em uso.";
       if (error.code === 'auth/weak-password') mensagem = "A senha deve ter no mínimo 6 dígitos.";
-      
+
       Alert.alert('Erro', mensagem);
       console.error(error);
     }
@@ -102,7 +102,7 @@ export default function Cadastro() {
           <Feather name="arrow-left" size={28} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Criar Conta</Text>
-        <View style={{ width: 28 }} /> 
+        <View style={{ width: 28 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">

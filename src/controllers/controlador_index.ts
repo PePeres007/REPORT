@@ -10,14 +10,14 @@ export class controladorIndex extends controladorGeral {
     this.delayMiliSegundos = delay;
   }
 
-  public timerNavigation(): ReturnType<typeof setTimeout> {
+  public timerNavegacao(): ReturnType<typeof setTimeout> {
     return setTimeout(() => {
     // Chama o metodo de navegação da classe pai para ir para a tela de login após o tempo definido.
       this.substituirRota('/login'); 
-    }, this.delayMiliSegundos);
+    },this.delayMiliSegundos);
   }
 
-  public abortNavigation(timer: ReturnType<typeof setTimeout>): void {
+  public stoptNavegacao(timer: ReturnType<typeof setTimeout>): void {
     clearTimeout(timer);
   }
 }

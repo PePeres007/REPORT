@@ -23,11 +23,7 @@ export class controladorGeral {
     }
   }
 
-  public exibirErro(titulo: string, mensagem: string): void {
-    Alert.alert(titulo, mensagem);
-  }
-
-  public exibirSucesso(titulo: string, mensagem: string): void {
+  public exibirMensagem(titulo: string, mensagem: string): void {
     Alert.alert(titulo, mensagem);
   }
 }
