@@ -6,7 +6,6 @@ import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useState } from 'react';
 // Importa o 'auth' configurado saindo da pasta 'app' e entrando na 'services'
 import {
-  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -37,10 +36,10 @@ export default function Login() {
 
   // --- CONFIGURAÇÃO LOGIN GOOGLE ---
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: '1029108826846-uhe1v7vshnbt8pcrn8r76r0clm540n0q.apps.googleusercontent.com',
-    iosClientId: 'COLE_AQUI_O_SEU_NOVO_ID_IOS.apps.googleusercontent.com',
-    androidClientId: 'COLE_AQUI_O_SEU_ID_ANDROID.apps.googleusercontent.com',
-  });
+  webClientId: '1092143546861-psnshs3k3o75irs2laibiquj8ic4mgek.apps.googleusercontent.com',
+  iosClientId: 'COLE_AQUI_O_SEU_NOVO_ID_IOS.apps.googleusercontent.com',
+  androidClientId: '1092143546861-esocaei1pjdib2g31ealsipdqh6fhq16.apps.googleusercontent.com',
+});
 
   // Delega o processamento da resposta do Google para o Controlador
   useEffect(() => {

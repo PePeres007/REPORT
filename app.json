@@ -17,7 +17,7 @@
     },
     "android": {
       "googleServicesFile": "./google-services.json",
-      "package": "com.arthurasantos.REPORT",
+      "package": "com.report.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/icon_report.png",
