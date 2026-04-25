@@ -1,4 +1,3 @@
-import emailjs from '@emailjs/browser';
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -10,15 +9,21 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity, // Adicionado para controlar o teclado
+  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+// Importando a classe controladora
+import { controladorAutenticacao } from '../controllers/controlador_autenticacao';
+
 export default function Autenticacao() {
   const router = useRouter();
   const { userEmail } = useLocalSearchParams(); 
+
+  // Instanciando o controlador
+  const controlador = new controladorAutenticacao(router);
 
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(107);
@@ -26,31 +31,12 @@ export default function Autenticacao() {
 
   const inputs = useRef<(TextInput | null)[]>([]);
 
-  const enviarEmailVerificacao = async (emailDestino: string, codigo: string) => {
-    const serviceId = 'service_xmns14q'; 
-    const templateId = 'template_fbm1ebf'; 
-    const publicKey = '08sLjhChKAajRv2Eu'; 
-
-    const templateParams = {
-      user_email: emailDestino, 
-      passcode: codigo,         
-    };
-
-    try {
-      await emailjs.send(serviceId, templateId, templateParams, publicKey);
-      console.log('E-mail enviado com sucesso!');
-    } catch (error) {
-      console.error('Erro ao enviar:', error);
-      Alert.alert('Erro', 'Certifique-se de habilitar "Non-browser environments" no painel do EmailJS.');
-    }
-  };
-
   useEffect(() => {
-    const novoCodigo = Math.floor(100000 + Math.random() * 900000).toString();
+    const novoCodigo = controlador.gerarCodigo();
     setCodigoCorreto(novoCodigo);
 
     if (userEmail) {
-      enviarEmailVerificacao(userEmail as string, novoCodigo);
+      controlador.enviarEmailVerificacao(userEmail as string, novoCodigo);
     }
   }, [userEmail]);
 
@@ -61,26 +47,9 @@ export default function Autenticacao() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleVerify2FA = async () => {
+  const handleVerify2FA = () => {
     const codigoDigitado = code.join(''); 
-
-    if (codigoDigitado.length < 6) {
-      Alert.alert('Erro', 'Digite o código completo.');
-      return;
-    }
-
-    if (codigoDigitado === codigoCorreto) {
-      Alert.alert('Sucesso', 'Identidade confirmada!');
-      router.replace('/home'); 
-    } else {
-      Alert.alert('Erro', 'Código inválido. Verifique o e-mail enviado.');
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    controlador.verificarCodigo(codigoDigitado, codigoCorreto);
   };
 
   const handleChange = (text: string, index: number) => {
@@ -91,7 +60,6 @@ export default function Autenticacao() {
     if (text !== '' && index < 5) {
       inputs.current[index + 1]?.focus();
     } else if (text !== '' && index === 5) {
-      // Se preencheu o último campo, o teclado abaixa automaticamente
       Keyboard.dismiss();
     }
   };
@@ -104,7 +72,6 @@ export default function Autenticacao() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* TouchableWithoutFeedback faz o teclado sumir ao clicar em qualquer lugar da tela */}
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
@@ -151,7 +118,7 @@ export default function Autenticacao() {
             <View style={styles.timerContainer}>
               <Text style={styles.timerText}>Reenviar código em </Text>
               <View style={styles.timerBadge}>
-                <Text style={styles.timerValue}>{formatTime(timer)}</Text>
+                <Text style={styles.timerValue}>{controlador.formatarTempo(timer)}</Text>
               </View>
             </View>
 
@@ -162,9 +129,9 @@ export default function Autenticacao() {
             <TouchableOpacity 
               style={styles.resendContainer}
               onPress={() => {
-                const novo = Math.floor(100000 + Math.random() * 900000).toString();
+                const novo = controlador.gerarCodigo();
                 setCodigoCorreto(novo);
-                enviarEmailVerificacao(userEmail as string, novo);
+                controlador.enviarEmailVerificacao(userEmail as string, novo);
                 setTimer(107);
                 Alert.alert('Enviado', 'Um novo código foi enviado para o seu e-mail.');
               }}
