@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1092143546861",
+    "project_id": "report-c3070",
+    "storage_bucket": "report-c3070.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1092143546861:android:a55c018268837c80ed27e4",
+        "android_client_info": {
+          "package_name": "com.report.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1092143546861-esocaei1pjdib2g31ealsipdqh6fhq16.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.report.app",
+            "certificate_hash": "9f73c15e82a8afc976de91707f277c4362f40742"
+          }
+        },
+        {
+          "client_id": "1092143546861-psnshs3k3o75irs2laibiquj8ic4mgek.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaazblSVA6V1uDyzt6SGus7i13NUxpnbk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1092143546861-psnshs3k3o75irs2laibiquj8ic4mgek.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
