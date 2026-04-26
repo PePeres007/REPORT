@@ -6,7 +6,6 @@ import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useState } from 'react';
 // Importa o 'auth' configurado saindo da pasta 'app' e entrando na 'services'
 import {
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -20,7 +19,6 @@ import { controladorLogin } from '../controllers/controlador_login';
 // 1. INICIALIZAÇÃO DO FIREBASE
 
 // import { getAnalytics } from "firebase/analytics"; // Analytics costuma dar erro no Expo Go, use se necessário
-
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -37,10 +35,9 @@ export default function Login() {
   // --- CONFIGURAÇÃO LOGIN GOOGLE ---
   const [request, response, promptAsync] = Google.useAuthRequest({
   webClientId: '1092143546861-psnshs3k3o75irs2laibiquj8ic4mgek.apps.googleusercontent.com',
-  iosClientId: 'COLE_AQUI_O_SEU_NOVO_ID_IOS.apps.googleusercontent.com',
+  iosClientId: '1092143546861-23ik71tk7124qsn56onnhd50lufmcm6v.apps.googleusercontent.com',
   androidClientId: '1092143546861-esocaei1pjdib2g31ealsipdqh6fhq16.apps.googleusercontent.com',
 });
-
   // Delega o processamento da resposta do Google para o Controlador
   useEffect(() => {
     controlador.processarRetornoGoogle(response);
@@ -100,6 +97,7 @@ export default function Login() {
           <View style={styles.line} />
         </View>
 
+        {/* BOTAO DO GOOGLE OCULTO PARA A APRESENTAÇÃO 
         <TouchableOpacity
           style={styles.buttonGoogle}
           onPress={() => promptAsync()}
@@ -111,6 +109,7 @@ export default function Login() {
           />
           <Text style={styles.emailText}>Google</Text>
         </TouchableOpacity>
+        */}
 
         {/* BOTÃO DE CADASTRO (Navega para a tela de cadastro) */}
         <TouchableOpacity
