@@ -34,10 +34,13 @@ export default function Login() {
 
   // --- CONFIGURAÇÃO LOGIN GOOGLE ---
   const [request, response, promptAsync] = Google.useAuthRequest({
-  webClientId: '1092143546861-psnshs3k3o75irs2laibiquj8ic4mgek.apps.googleusercontent.com',
-  iosClientId: '1092143546861-23ik71tk7124qsn56onnhd50lufmcm6v.apps.googleusercontent.com',
-  androidClientId: '1092143546861-esocaei1pjdib2g31ealsipdqh6fhq16.apps.googleusercontent.com',
+  webClientId: 'COLE_AQUI_O_SEU_NOVO_ID_WEB.apps.googleusercontent.com',
+  iosClientId: 'COLE_AQUI_O_SEU_NOVO_ID_IOS.apps.googleusercontent.com',
+  androidClientId: 'COLE_AQUI_O_SEU_NOVO_ID_ANDROID.apps.googleusercontent.com',
 });
+//1092143546861-psnshs3k3o75irs2laibiquj8ic4mgek
+//1092143546861-23ik71tk7124qsn56onnhd50lufmcm6v
+//1092143546861-esocaei1pjdib2g31ealsipdqh6fhq16
   // Delega o processamento da resposta do Google para o Controlador
   useEffect(() => {
     controlador.processarRetornoGoogle(response);
