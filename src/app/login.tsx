@@ -3,6 +3,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 // Importa o 'auth' configurado saindo da pasta 'app' e entrando na 'services'
 import {
@@ -106,7 +107,7 @@ export default function Login() {
           disabled={!request}
         >
           <Image
-            source={require('../../assets/images/google_logo.png')}
+            source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png' }}
             style={styles.googleIcon}
           />
           <Text style={styles.emailText}>Google</Text>
