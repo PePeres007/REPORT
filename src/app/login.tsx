@@ -41,6 +41,7 @@ export default function Login() {
 //1092143546861-psnshs3k3o75irs2laibiquj8ic4mgek
 //1092143546861-23ik71tk7124qsn56onnhd50lufmcm6v
 //1092143546861-esocaei1pjdib2g31ealsipdqh6fhq16
+
   // Delega o processamento da resposta do Google para o Controlador
   useEffect(() => {
     controlador.processarRetornoGoogle(response);
