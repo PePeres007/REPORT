@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
 
@@ -8,8 +8,10 @@ import { controladorHome } from '../controllers/controlador_home';
 export default function MapaScreen() {
   // Instanciando o objeto controlador
   const controlador = new controladorHome();
+  const mapRef = useRef<MapView>(null);
   const [listaDenuncias, setListaDenuncias] = useState<any[]>([]);
   const [denunciaLocal, setDenunciaLocal] = useState<{latitude: number, longitude: number} | null>(null);
+  const [localizacaoUsuario, setLocalizacaoUsuario] = useState<{latitude: number, longitude: number} | null>(null);
 
   // Usa o método do controlador para carregar os dados
   useEffect(() => {
@@ -17,7 +19,20 @@ export default function MapaScreen() {
       const dados = await controlador.carregarDenuncias();
       setListaDenuncias(dados);
     };
+
+    const buscarLocalizacao = async () => {
+      const localizacao = await controlador.obterLocalizacaoAtual();
+      if (localizacao) {
+        setLocalizacaoUsuario({
+          latitude: localizacao.latitude,
+          longitude: localizacao.longitude,
+        });
+        mapRef.current?.animateToRegion(localizacao, 1000);
+      }
+    };
+
     buscarDados();
+    buscarLocalizacao();
   }, []);
 
   const segurarNoMapa = (evento: any) => {
@@ -27,8 +42,10 @@ export default function MapaScreen() {
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         style={styles.map}
         initialRegion={controlador.obterRegiaoInicial()} // Obtém a região da classe
+        showsUserLocation={true}
         onLongPress={segurarNoMapa} 
       >
         <UrlTile
