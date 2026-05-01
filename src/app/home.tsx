@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
 
@@ -8,10 +9,11 @@ import { controladorHome } from '../controllers/controlador_home';
 export default function MapaScreen() {
   // Instanciando o objeto controlador
   const controlador = new controladorHome();
+  const router = useRouter();
   const mapRef = useRef<MapView>(null);
   const [listaDenuncias, setListaDenuncias] = useState<any[]>([]);
-  const [denunciaLocal, setDenunciaLocal] = useState<{latitude: number, longitude: number} | null>(null);
-  const [localizacaoUsuario, setLocalizacaoUsuario] = useState<{latitude: number, longitude: number} | null>(null);
+  const [denunciaLocal, setDenunciaLocal] = useState<{ latitude: number, longitude: number } | null>(null);
+  const [localizacaoUsuario, setLocalizacaoUsuario] = useState<{ latitude: number, longitude: number } | null>(null);
 
   // Usa o método do controlador para carregar os dados
   useEffect(() => {
@@ -46,14 +48,14 @@ export default function MapaScreen() {
         style={styles.map}
         initialRegion={controlador.obterRegiaoInicial()} // Obtém a região da classe
         showsUserLocation={true}
-        onLongPress={segurarNoMapa} 
+        onLongPress={segurarNoMapa}
       >
         <UrlTile
           urlTemplate="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
           maximumZ={19}
           flipY={false}
         />
-        
+
         {listaDenuncias.map((item) => (
           <Marker
             key={item.id}
@@ -63,13 +65,13 @@ export default function MapaScreen() {
             }}
             title={item.titulo || "Denúncia"}
             description={item.descricao || "Relato de problema"}
-            pinColor="purple" 
+            pinColor="purple"
           />
         ))}
-        
+
         {denunciaLocal && (
-          <Marker 
-            coordinate={denunciaLocal} 
+          <Marker
+            coordinate={denunciaLocal}
             title="Local da Denúncia"
             description="Você registrará o problema aqui."
           />
@@ -80,10 +82,21 @@ export default function MapaScreen() {
         <Text style={styles.instrucao}>
           Segure no mapa para marcar o local do problema.
         </Text>
-        
+
         {denunciaLocal && (
-          <TouchableOpacity style={styles.botaoReportar}>
-            <Text style={styles.botaoTexto}>Reportar Aqui!</Text>
+          <TouchableOpacity
+            style={styles.botaoReportar}
+            onPress={() =>
+              router.push({
+                pathname: '/report',
+                params: {
+                  lat: denunciaLocal.latitude.toString(),
+                  lon: denunciaLocal.longitude.toString(),
+                },
+              })
+            }
+          >
+            <Text style={styles.botaoTexto}>🚨 Reportar Aqui!</Text>
           </TouchableOpacity>
         )}
       </View>
