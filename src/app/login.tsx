@@ -86,7 +86,7 @@ export default function Login() {
           />
         </View>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => controlador.esqueceuSenha(email)}>
           <Text style={styles.forgotPassword}>Esqueceu a senha?</Text>
         </TouchableOpacity>
 

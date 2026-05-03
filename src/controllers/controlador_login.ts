@@ -1,5 +1,5 @@
 import { controladorGeral } from './controlador_geral';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../services/firebaseConfig';
 
 
@@ -65,4 +65,28 @@ export class controladorLogin extends controladorGeral {
       this.exibirMensagem("Erro Google", "Falha na comunicação com o servidor do Google.");
     }
   }
-}
+
+  // Envia um e-mail de redefinição de senha via Firebase
+  public async esqueceuSenha(email: string): Promise<void> {
+    if (!email || !email.trim()) {
+      this.exibirMensagem('Atenção', 'Preencha o campo de e-mail com seu endereço cadastrado e tente novamente.');
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email.trim().toLowerCase());
+      this.exibirMensagem(
+        '📧 E-mail enviado!',
+        `Enviamos um link de redefinição de senha para ${email.trim().toLowerCase()}. Verifique sua caixa de entrada.`
+      );
+    } catch (error: any) {
+      let mensagem = 'Não foi possível enviar o e-mail. Tente novamente.';
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        mensagem = 'Não encontramos uma conta com este e-mail.';
+      } else if (error.code === 'auth/invalid-email') {
+        mensagem = 'O formato do e-mail é inválido.';
+      }
+      this.exibirMensagem('Erro', mensagem);
+    }
+  }
+}

@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -61,41 +63,47 @@ export default function Cadastro() {
         <View style={{ width: 28 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>Boas vindas ao REPORT</Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <Text style={styles.title}>Boas vindas ao REPORT</Text>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Nome</Text>
-          <TextInput style={styles.input} placeholder="Seu nome completo" value={nome} onChangeText={setNome} />
-        </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Nome</Text>
+            <TextInput style={styles.input} placeholder="Seu nome completo" value={nome} onChangeText={setNome} />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Data de Nascimento</Text>
-          <TextInput style={styles.input} placeholder="DD/MM/AAAA" keyboardType="numeric" value={dataNascimento} onChangeText={handleDateChange} maxLength={10} />
-        </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Data de Nascimento</Text>
+            <TextInput style={styles.input} placeholder="DD/MM/AAAA" keyboardType="numeric" value={dataNascimento} onChangeText={handleDateChange} maxLength={10} />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput style={[styles.input, emailError ? styles.inputError : null]} placeholder="exemplo@gmail.com" value={email} onChangeText={handleEmailChange} autoCapitalize="none" keyboardType="email-address" />
-          {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-        </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput style={[styles.input, emailError ? styles.inputError : null]} placeholder="exemplo@gmail.com" value={email} onChangeText={handleEmailChange} autoCapitalize="none" keyboardType="email-address" />
+            {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Senha</Text>
-          <TextInput style={[styles.input, passwordError ? styles.inputError : null]} placeholder="Mínimo 6 caracteres" secureTextEntry value={password} onChangeText={handlePasswordChange} />
-          {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
-        </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Senha</Text>
+            <TextInput style={[styles.input, passwordError ? styles.inputError : null]} placeholder="Mínimo 6 caracteres" secureTextEntry value={password} onChangeText={handlePasswordChange} />
+            {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Confirmar a senha</Text>
-          <TextInput style={[styles.input, confirmPasswordError ? styles.inputError : null]} placeholder="Repita a senha" secureTextEntry value={confirmPassword} onChangeText={handleConfirmPasswordChange} />
-          {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
-        </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Confirmar a senha</Text>
+            <TextInput style={[styles.input, confirmPasswordError ? styles.inputError : null]} placeholder="Repita a senha" secureTextEntry value={confirmPassword} onChangeText={handleConfirmPasswordChange} />
+            {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
+          </View>
 
-        <TouchableOpacity style={styles.buttonSignUp} onPress={() => controlador.realizarCadastro(nome, dataNascimento, email, password, confirmPassword, emailError)}>
-          <Text style={styles.buttonText}>Criar Conta</Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <TouchableOpacity style={styles.buttonSignUp} onPress={() => controlador.realizarCadastro(nome, dataNascimento, email, password, confirmPassword, emailError)}>
+            <Text style={styles.buttonText}>Criar Conta</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }

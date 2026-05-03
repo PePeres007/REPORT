@@ -247,51 +247,46 @@ export default function ReportScreen() {
       // ── PASSO 4: DESCRIÇÃO ──────────────────────────────────────────────────
       case 4:
         return (
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}
-          >
-            <View style={styles.conteudoPasso}>
-              <Text style={styles.tituloPasso}>Descreva o problema</Text>
-              <Text style={styles.subtituloPasso}>
-                Dê mais detalhes sobre a situação para facilitar o atendimento.
-              </Text>
+          <View style={styles.conteudoPasso}>
+            <Text style={styles.tituloPasso}>Descreva o problema</Text>
+            <Text style={styles.subtituloPasso}>
+              Dê mais detalhes sobre a situação para facilitar o atendimento.
+            </Text>
 
-              {/* Resumo do report */}
-              <View style={styles.resumoContainer}>
-                <Text style={styles.resumoTitulo}>📋 Resumo do seu report</Text>
-                <View style={styles.resumoItem}>
-                  <Text style={styles.resumoLabel}>Categoria:</Text>
-                  <Text style={styles.resumoValor}>
-                    {CATEGORIAS.find((c) => c.id === categoria)?.icone}{' '}
-                    {CATEGORIAS.find((c) => c.id === categoria)?.label}
-                  </Text>
-                </View>
-                <View style={styles.resumoItem}>
-                  <Text style={styles.resumoLabel}>Foto:</Text>
-                  <Text style={styles.resumoValor}>{fotoUri ? '✅ Adicionada' : '❌ Sem foto'}</Text>
-                </View>
-                <View style={styles.resumoItem}>
-                  <Text style={styles.resumoLabel}>Endereço:</Text>
-                  <Text style={styles.resumoValor} numberOfLines={2}>{endereco || 'Não informado'}</Text>
-                </View>
+            {/* Resumo do report */}
+            <View style={styles.resumoContainer}>
+              <Text style={styles.resumoTitulo}>📋 Resumo do seu report</Text>
+              <View style={styles.resumoItem}>
+                <Text style={styles.resumoLabel}>Categoria:</Text>
+                <Text style={styles.resumoValor}>
+                  {CATEGORIAS.find((c) => c.id === categoria)?.icone}{' '}
+                  {CATEGORIAS.find((c) => c.id === categoria)?.label}
+                </Text>
               </View>
-
-              <Text style={styles.labelCampo}>✏️ Descrição</Text>
-              <TextInput
-                style={styles.inputDescricao}
-                value={descricao}
-                onChangeText={setDescricao}
-                placeholder="Ex: Há um buraco grande na calçada próximo ao poste, dificultando a passagem de pedestres..."
-                placeholderTextColor="#B0B0B0"
-                multiline
-                numberOfLines={5}
-                maxLength={500}
-                textAlignVertical="top"
-              />
-              <Text style={styles.contadorCaracteres}>{descricao.length}/500</Text>
+              <View style={styles.resumoItem}>
+                <Text style={styles.resumoLabel}>Foto:</Text>
+                <Text style={styles.resumoValor}>{fotoUri ? '✅ Adicionada' : '❌ Sem foto'}</Text>
+              </View>
+              <View style={styles.resumoItem}>
+                <Text style={styles.resumoLabel}>Endereço:</Text>
+                <Text style={styles.resumoValor} numberOfLines={2}>{endereco || 'Não informado'}</Text>
+              </View>
             </View>
-          </KeyboardAvoidingView>
+
+            <Text style={styles.labelCampo}>✏️ Descrição</Text>
+            <TextInput
+              style={styles.inputDescricao}
+              value={descricao}
+              onChangeText={setDescricao}
+              placeholder="Ex: Há um buraco grande na calçada próximo ao poste, dificultando a passagem de pedestres..."
+              placeholderTextColor="#B0B0B0"
+              multiline
+              numberOfLines={5}
+              maxLength={500}
+              textAlignVertical="top"
+            />
+            <Text style={styles.contadorCaracteres}>{descricao.length}/500</Text>
+          </View>
         );
     }
   };
@@ -344,9 +339,22 @@ export default function ReportScreen() {
       </View>
 
       {/* ── Conteúdo do passo animado ── */}
-      <Animated.View style={[styles.conteudoAnimado, { opacity: fadeAnim }]}>
-        {renderPasso()}
-      </Animated.View>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <Animated.View style={[styles.conteudoAnimado, { opacity: fadeAnim }]}>
+            {renderPasso()}
+          </Animated.View>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* ── Botões de navegação ── */}
       <View style={styles.rodape}>
@@ -482,7 +490,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   conteudoPasso: {
-    flex: 1,
     paddingHorizontal: 20,
     paddingTop: 24,
   },

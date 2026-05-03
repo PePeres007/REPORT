@@ -26,7 +26,7 @@ export default function Autenticacao() {
   const controlador = new controladorAutenticacao(router);
 
   const [code, setCode] = useState(['', '', '', '', '', '']);
-  const [timer, setTimer] = useState(107);
+  const [timer, setTimer] = useState(300); // 5 minutos
   const [codigoCorreto, setCodigoCorreto] = useState('');
 
   const inputs = useRef<(TextInput | null)[]>([]);
@@ -40,12 +40,14 @@ export default function Autenticacao() {
     }
   }, [userEmail]);
 
+  // Quando timer chega a 0, o effect roda mas retorna sem criar novo interval → para sozinho
   useEffect(() => {
+    if (timer === 0) return;
     const interval = setInterval(() => {
-      setTimer((prev) => (prev > 0 ? prev - 1 : 0));
+      setTimer((prev) => prev - 1);
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [timer]);
 
   const handleVerify2FA = () => {
     const codigoDigitado = code.join(''); 
@@ -127,12 +129,13 @@ export default function Autenticacao() {
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={styles.resendContainer}
+              style={[styles.resendContainer, timer > 0 && { opacity: 0.4 }]}
+              disabled={timer > 0}
               onPress={() => {
                 const novo = controlador.gerarCodigo();
                 setCodigoCorreto(novo);
                 controlador.enviarEmailVerificacao(userEmail as string, novo);
-                setTimer(107);
+                setTimer(300); // Reinicia para 5 minutos
                 Alert.alert('Enviado', 'Um novo código foi enviado para o seu e-mail.');
               }}
             >
