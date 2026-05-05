@@ -70,6 +70,7 @@ export default function MapaScreen() {
         </Text>
 
         <View style={styles.rowBotoes}>
+          {/* BOTÃO NOVA OCORRÊNCIA */}
           <TouchableOpacity 
             style={[styles.botaoReportar, !denunciaLocal && styles.botaoDesativado]}
             disabled={!denunciaLocal}
@@ -89,7 +90,11 @@ export default function MapaScreen() {
             <Text style={styles.botaoTexto}>Nova Ocorrência</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.botaoConfig}>
+          {/* 🔥 BOTÃO CONFIGURAÇÕES (AGORA FUNCIONANDO) */}
+          <TouchableOpacity 
+            style={styles.botaoConfig}
+            onPress={() => router.push('/configuracoes' as any)}
+          >
             <Ionicons name="settings-sharp" size={24} color="#1A3B5D" />
           </TouchableOpacity>
         </View>
