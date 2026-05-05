@@ -33,7 +33,7 @@ export default function ReportScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ lat: string; lon: string }>();
   const controlador = new controladorReport(router);
-
+  const [urgencia, setUrgencia] = useState('Médio'); // Valor padrão
   const latitude = parseFloat(params.lat ?? '0');
   const longitude = parseFloat(params.lon ?? '0');
 
@@ -135,6 +135,7 @@ export default function ReportScreen() {
         fotoUri,
         endereco,
         descricao: descricao.trim(),
+        urgencia,
         latitude,
         longitude,
       },
@@ -159,24 +160,36 @@ export default function ReportScreen() {
   // ── Renderização dos passos ─────────────────────────────────────────────────
   const renderPasso = () => {
     switch (passo) {
-      // ── PASSO 1: CATEGORIA ──────────────────────────────────────────────────
+      // —— PASSO 1: CATEGORIA ——————————————————————————————————————————————————————
       case 1:
         return (
           <View style={styles.conteudoPasso}>
             <Text style={styles.tituloPasso}>Qual é o tipo do problema?</Text>
             <Text style={styles.subtituloPasso}>Selecione a categoria que melhor descreve a situação.</Text>
-            <ScrollView contentContainerStyle={styles.gridCategorias} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={styles.listaCategorias} showsVerticalScrollIndicator={false}>
               {CATEGORIAS.map((cat) => (
                 <TouchableOpacity
                   key={cat.id}
-                  style={[styles.cardCategoria, categoria === cat.id && styles.cardCategoriaSelecionado]}
+                  style={[styles.cardCategoriaHorizontal, categoria === cat.id && styles.cardCategoriaSelecionado]}
                   onPress={() => setCategoria(cat.id)}
-                  activeOpacity={0.7}
                 >
-                  <Text style={styles.iconeCategoria}>{cat.icone}</Text>
-                  <Text style={[styles.labelCategoria, categoria === cat.id && styles.labelCategoriaSelecionado]}>
-                    {cat.label}
-                  </Text>
+                  <View style={styles.containerIcone}>
+                    <Text style={styles.iconeCategoria}>{cat.icone}</Text>
+                  </View>
+                            
+                  <View style={styles.textoCategoriaContainer}>
+                    <Text style={[styles.labelCategoria, categoria === cat.id && styles.labelCategoriaSelecionado]}>
+                      {cat.label}
+                    </Text>
+                    {/* Usando uma verificação segura para a descrição */}
+                    <Text style={styles.sublabelCategoria} numberOfLines={1}>
+                      {"descricao" in cat ? (cat as any).descricao : "Toque para selecionar"}
+                    </Text>
+                  </View>
+                            
+                  <View style={[styles.radioButton, categoria === cat.id && styles.radioButtonSelecionado]}>
+                    {categoria === cat.id && <Text style={styles.checkIcon}>✓</Text>}
+                  </View>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -281,11 +294,34 @@ export default function ReportScreen() {
               placeholder="Ex: Há um buraco grande na calçada próximo ao poste, dificultando a passagem de pedestres..."
               placeholderTextColor="#B0B0B0"
               multiline
-              numberOfLines={5}
+              numberOfLines={3}
               maxLength={500}
               textAlignVertical="top"
             />
             <Text style={styles.contadorCaracteres}>{descricao.length}/500</Text>
+            {/* --- SEÇÃO NÍVEL DE URGÊNCIA --- */}
+            <Text style={styles.labelCampo}>Nível de urgência</Text>
+            <View style={styles.containerUrgencia}>
+              {[
+                { id: 'Leve', cor: '#4CAF50', fundo: '#E8F5E9', icone: '🟢' },
+                { id: 'Médio', cor: '#FFB300', fundo: '#FFF8E1', icone: '🟡' },
+                { id: 'Urgente', cor: '#F44336', fundo: '#FFEBEE', icone: '🔴' },
+              ].map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  onPress={() => setUrgencia(item.id)}
+                  style={[
+                    styles.botaoUrgencia,
+                    { borderColor: item.cor },
+                    urgencia === item.id && { backgroundColor: item.fundo }
+                  ]}
+                >
+                  <Text style={[styles.textoUrgencia, { color: item.cor }]}>
+                    {item.icone} {item.id}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         );
     }
@@ -506,48 +542,75 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
-  // Grid de categorias
-  gridCategorias: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+  // Lista de categorias (Lista)
+  listaCategorias: {
     paddingBottom: 20,
+    gap: 12, // Espaçamento entre os cards
   },
-  cardCategoria: {
-    width: '30%',
-    aspectRatio: 1,
+  cardCategoriaHorizontal: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: COR_CARD,
     borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
+    padding: 16,
     borderWidth: 2,
     borderColor: 'transparent',
     elevation: 2,
-    shadowColor: '#7B1FA2',
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
-    padding: 8,
   },
   cardCategoriaSelecionado: {
     borderColor: COR_PRIMARIA,
-    backgroundColor: '#F3E5F5',
-    elevation: 5,
-    shadowOpacity: 0.2,
+    backgroundColor: '#F8F2FF', // Um fundo sutil para o item selecionado
+  },
+  containerIcone: {
+    width: 50,
+    height: 50,
+    borderRadius: 12,
+    backgroundColor: '#F5F0FA',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   iconeCategoria: {
-    fontSize: 28,
-    marginBottom: 6,
+    fontSize: 24,
+  },
+  textoCategoriaContainer: {
+    flex: 1,
+    marginLeft: 16,
   },
   labelCategoria: {
-    fontSize: 10,
-    textAlign: 'center',
-    color: '#5A4B6B',
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2D1B4E',
   },
   labelCategoriaSelecionado: {
     color: COR_PRIMARIA,
+  },
+  sublabelCategoria: {
+    fontSize: 12,
+    color: '#7A6B8A',
+    marginTop: 2,
+  },
+  radioButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+  radioButtonSelecionado: {
+    backgroundColor: COR_PRIMARIA,
+    borderColor: COR_PRIMARIA,
+  },
+  checkIcon: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 
   // Foto
@@ -677,6 +740,33 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     flex: 1,
   },
+  contadorCaracteres: {
+    textAlign: 'right',
+    fontSize: 12,
+    color: '#9C6BAF',
+    marginTop: 6,
+  },
+  containerUrgencia: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+    gap: 8,
+  },
+  botaoUrgencia: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 2,
+    backgroundColor: '#FFFFFF',
+  },
+  textoUrgencia: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  // Ajuste o input para não ocupar a tela toda se o teclado subir
   inputDescricao: {
     backgroundColor: COR_CARD,
     borderRadius: 14,
@@ -685,17 +775,10 @@ const styles = StyleSheet.create({
     color: '#2D1B4E',
     borderWidth: 1.5,
     borderColor: '#E8D5F5',
-    minHeight: 130,
+    minHeight: 120,
     textAlignVertical: 'top',
     elevation: 1,
   },
-  contadorCaracteres: {
-    textAlign: 'right',
-    fontSize: 12,
-    color: '#9C6BAF',
-    marginTop: 6,
-  },
-
   // Rodapé
   rodape: {
     paddingHorizontal: 20,

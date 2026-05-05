@@ -14,19 +14,17 @@ export interface DadosReport {
   descricao: string;
   latitude: number;
   longitude: number;
+  urgencia: string;
 }
 
 // Categorias disponíveis para o report
 export const CATEGORIAS = [
-  { id: 'buraco',    label: 'Buraco na Via',       icone: '🕳️' },
-  { id: 'iluminacao', label: 'Iluminação Pública', icone: '💡' },
-  { id: 'lixo',      label: 'Lixo Irregular',      icone: '🗑️' },
-  { id: 'alagamento', label: 'Alagamento',          icone: '🌊' },
-  { id: 'obra',       label: 'Obra Irregular',      icone: '🚧' },
-  { id: 'abandono',   label: 'Imóvel Abandonado',  icone: '🏚️' },
-  { id: 'deslizamento', label: 'Deslizamento',      icone: '⛰️' },
-  { id: 'fiacao',     label: 'Fiação Exposta',      icone: '⚡' },
-  { id: 'animal',     label: 'Animal Silvestre',    icone: '🐾' },
+
+  { id: 'infraestrutura',       label: 'Infraestrutura', descricao: 'Buracos, iluminação...',      icone: '🚧' },
+  { id: 'meio ambiente',   label: 'Meio Ambiente', descricao: 'Poluição, queda de árvore...',  icone: '🌳' },
+  { id: 'segurança', label: 'Segurança Pública', descricao: 'Riscos, vandalismo...',      icone: '🚨' },
+  { id: 'transporte',     label: 'Transporte', descricao: 'Sinalizações, bloqueios...',      icone: '🚌' },
+  { id: 'saneamento',     label: 'Saneamento', descricao: 'Esgoto, drenagem, inundação...',    icone: '💧' },
 ];
 
 export class controladorReport extends controladorGeral {
@@ -135,6 +133,7 @@ export class controladorReport extends controladorGeral {
         fotoUrl: fotoUrl,           // URL pública do Storage (funciona em qualquer dispositivo)
         endereco: dados.endereco,
         descricao: dados.descricao,
+        urgencia: dados.urgencia,
         latitude: dados.latitude,
         longitude: dados.longitude,
         userId: userId ?? 'anonimo',
