@@ -75,7 +75,13 @@ export default function MapaScreen() {
             disabled={!denunciaLocal}
             onPress={() => {
               if (denunciaLocal) {
-                router.push(`/report?lat=${denunciaLocal.latitude}&lon=${denunciaLocal.longitude}`);
+                router.push({
+                  pathname: '/report' as any,
+                  params: {
+                    lat: denunciaLocal.latitude.toString(),
+                    lon: denunciaLocal.longitude.toString(),
+                  },
+                });
               }
             }}
           >
