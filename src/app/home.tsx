@@ -1,21 +1,18 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
 
-// Importando a classe controladora
 import { controladorHome } from '../controllers/controlador_home';
 
 export default function MapaScreen() {
-  // Instanciando o objeto controlador
   const controlador = new controladorHome();
   const router = useRouter();
   const mapRef = useRef<MapView>(null);
   const [listaDenuncias, setListaDenuncias] = useState<any[]>([]);
   const [denunciaLocal, setDenunciaLocal] = useState<{ latitude: number, longitude: number } | null>(null);
-  const [localizacaoUsuario, setLocalizacaoUsuario] = useState<{ latitude: number, longitude: number } | null>(null);
 
-  // Usa o método do controlador para carregar os dados
   useEffect(() => {
     const buscarDados = async () => {
       const dados = await controlador.carregarDenuncias();
@@ -25,10 +22,6 @@ export default function MapaScreen() {
     const buscarLocalizacao = async () => {
       const localizacao = await controlador.obterLocalizacaoAtual();
       if (localizacao) {
-        setLocalizacaoUsuario({
-          latitude: localizacao.latitude,
-          longitude: localizacao.longitude,
-        });
         mapRef.current?.animateToRegion(localizacao, 1000);
       }
     };
@@ -46,59 +39,54 @@ export default function MapaScreen() {
       <MapView
         ref={mapRef}
         style={styles.map}
-        initialRegion={controlador.obterRegiaoInicial()} // Obtém a região da classe
+        initialRegion={controlador.obterRegiaoInicial()}
         showsUserLocation={true}
         onLongPress={segurarNoMapa}
       >
         <UrlTile
           urlTemplate="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
           maximumZ={19}
-          flipY={false}
         />
 
         {listaDenuncias.map((item) => (
           <Marker
             key={item.id}
-            coordinate={{
-              latitude: item.latitude,
-              longitude: item.longitude,
-            }}
-            title={item.titulo || "Denúncia"}
-            description={item.descricao || "Relato de problema"}
+            coordinate={{ latitude: item.latitude, longitude: item.longitude }}
+            title={item.titulo}
             pinColor="purple"
           />
         ))}
 
         {denunciaLocal && (
-          <Marker
-            coordinate={denunciaLocal}
-            title="Local da Denúncia"
-            description="Você registrará o problema aqui."
-          />
+          <Marker coordinate={denunciaLocal} pinColor="red" />
         )}
       </MapView>
 
-      <View style={styles.overlay}>
-        <Text style={styles.instrucao}>
-          Segure no mapa para marcar o local do problema.
+      <View style={styles.overlayBottom}>
+        <Text style={styles.textoInstrucao}>
+          {denunciaLocal 
+            ? "Local selecionado! Clique abaixo para reportar." 
+            : "Toque em qualquer ponto do mapa para registrar uma ocorrência"}
         </Text>
 
-        {denunciaLocal && (
-          <TouchableOpacity
-            style={styles.botaoReportar}
-            onPress={() =>
-              router.push({
-                pathname: '/report',
-                params: {
-                  lat: denunciaLocal.latitude.toString(),
-                  lon: denunciaLocal.longitude.toString(),
-                },
-              })
-            }
+        <View style={styles.rowBotoes}>
+          <TouchableOpacity 
+            style={[styles.botaoReportar, !denunciaLocal && styles.botaoDesativado]}
+            disabled={!denunciaLocal}
+            onPress={() => {
+              if (denunciaLocal) {
+                router.push(`/report?lat=${denunciaLocal.latitude}&lon=${denunciaLocal.longitude}`);
+              }
+            }}
           >
-            <Text style={styles.botaoTexto}>🚨 Reportar Aqui!</Text>
+            <Ionicons name="location-sharp" size={20} color="#FFF" style={styles.iconeBotao} />
+            <Text style={styles.botaoTexto}>Nova Ocorrência</Text>
           </TouchableOpacity>
-        )}
+
+          <TouchableOpacity style={styles.botaoConfig}>
+            <Ionicons name="settings-sharp" size={24} color="#1A3B5D" />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -107,8 +95,73 @@ export default function MapaScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: '100%', height: '100%' },
-  overlay: { position: 'absolute', bottom: 40, width: '100%', alignItems: 'center', paddingHorizontal: 20 },
-  instrucao: { backgroundColor: 'rgba(255, 255, 255, 0.9)', padding: 10, borderRadius: 8, fontWeight: 'bold', color: '#1e4e79', marginBottom: 10, textAlign: 'center' },
-  botaoReportar: { backgroundColor: '#ff4c4c', paddingVertical: 15, paddingHorizontal: 40, borderRadius: 30, elevation: 5 },
-  botaoTexto: { color: '#FFF', fontWeight: 'bold', fontSize: 16 }
+
+  overlayBottom: {
+    position: 'absolute',
+    bottom: 25,
+    alignSelf: 'center',
+    width: '94%',
+    backgroundColor: '#F7F9FC',
+    borderRadius: 30,
+    paddingVertical: 18,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+
+  textoInstrucao: {
+    color: '#6A89A7',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 18,
+    paddingHorizontal: 25,
+  },
+
+  rowBotoes: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+
+  botaoReportar: {
+    flexDirection: 'row',
+    backgroundColor: '#2F5D8C',
+    paddingVertical: 16,
+    paddingHorizontal: 28,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    marginRight: 12,
+  },
+
+  botaoDesativado: {
+    backgroundColor: '#A0B4CB',
+  },
+
+  botaoConfig: {
+    backgroundColor: '#EEF3F8',
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E1E9F1',
+  },
+
+  iconeBotao: {
+    marginRight: 10,
+  },
+
+  botaoTexto: {
+    color: '#FFF',
+    fontWeight: '600',
+    fontSize: 17,
+  },
 });
