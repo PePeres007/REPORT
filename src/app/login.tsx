@@ -3,9 +3,9 @@ import * as Google from 'expo-auth-session/providers/google';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-// Importa o 'auth' configurado saindo da pasta 'app' e entrando na 'services'
+import { salvarUsuario } from '../services/userStorage';
+
 import {
   KeyboardAvoidingView,
   Platform,
@@ -16,40 +16,31 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { controladorLogin } from '../controllers/controlador_login';
-// 1. INICIALIZAÇÃO DO FIREBASE
 
-// import { getAnalytics } from "firebase/analytics"; // Analytics costuma dar erro no Expo Go, use se necessário
+import { controladorLogin } from '../controllers/controlador_login';
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Login() {
-  // 1. ESTADOS (States)
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
 
-  // 2. Instanciando o objeto
   const controlador = new controladorLogin(router);
 
-  // --- CONFIGURAÇÃO LOGIN GOOGLE ---
   const [request, response, promptAsync] = Google.useAuthRequest({
-  webClientId: 'COLE_AQUI_O_SEU_NOVO_ID_WEB.apps.googleusercontent.com',
-  iosClientId: 'COLE_AQUI_O_SEU_NOVO_ID_IOS.apps.googleusercontent.com',
-  androidClientId: 'COLE_AQUI_O_SEU_NOVO_ID_ANDROID.apps.googleusercontent.com',
-});
-//IDs colados
+    webClientId: 'COLE_AQUI_O_SEU_NOVO_ID_WEB.apps.googleusercontent.com',
+    iosClientId: 'COLE_AQUI_O_SEU_NOVO_ID_IOS.apps.googleusercontent.com',
+    androidClientId: 'COLE_AQUI_O_SEU_NOVO_ID_ANDROID.apps.googleusercontent.com',
+  });
 
-  // Delega o processamento da resposta do Google para o Controlador
   useEffect(() => {
     controlador.processarRetornoGoogle(response);
   }, [response]);
 
-  // Função disparada a cada letra digitada no campo de e-mail
   const handleEmailChange = (text: string) => {
     setEmail(text);
-    // Pede ao controlador para validar e guarda a mensagem de erro (se houver)
     const erroCalculado = controlador.validarFormatoEmail(text);
     setEmailError(erroCalculado);
   };
@@ -90,7 +81,18 @@ export default function Login() {
           <Text style={styles.forgotPassword}>Esqueceu a senha?</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.buttonLogin} onPress={() => controlador.realizarLogin(email, password, emailError)}>
+        {/* 🔥 BOTÃO LOGIN ATUALIZADO */}
+        <TouchableOpacity 
+          style={styles.buttonLogin} 
+          onPress={async () => {
+            await salvarUsuario({
+              nome: email.split('@')[0],
+              email: email
+            });
+
+            controlador.realizarLogin(email, password, emailError);
+          }}
+        >
           <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
 
@@ -100,21 +102,7 @@ export default function Login() {
           <View style={styles.line} />
         </View>
 
-        {/* BOTAO DO GOOGLE OCULTO PARA A APRESENTAÇÃO 
-        <TouchableOpacity
-          style={styles.buttonGoogle}
-          onPress={() => promptAsync()}
-          disabled={!request}
-        >
-          <Image
-            source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png' }}
-            style={styles.googleIcon}
-          />
-          <Text style={styles.emailText}>Google</Text>
-        </TouchableOpacity>
-        */}
-
-        {/* BOTÃO DE CADASTRO (Navega para a tela de cadastro) */}
+        {/* BOTÃO DE CADASTRO */}
         <TouchableOpacity
           style={styles.buttonEmailContainer}
           onPress={() => controlador.navegarPara('/cadastro')}
@@ -129,6 +117,7 @@ export default function Login() {
             <Text style={styles.emailText}>Email</Text>
           </LinearGradient>
         </TouchableOpacity>
+
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -205,25 +194,6 @@ const styles = StyleSheet.create({
     color: '#64748B',
     fontSize: 14,
   },
-
-  buttonGoogle: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    padding: 15,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    marginBottom: 12, // 
-  },
-  googleIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
-    resizeMode: 'contain',
-  },
-
   buttonEmailContainer: {
     borderRadius: 12,
     overflow: 'hidden',
