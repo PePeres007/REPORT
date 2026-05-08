@@ -18,17 +18,11 @@ export default function Configuracoes() {
   }, []);
 
   const iniciais = usuario?.nome
-    ? usuario.nome
-        .split(' ')
-        .map((n: string) => n[0])
-        .join('')
-        .substring(0, 2)
-        .toUpperCase()
+    ? usuario.nome.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
     : '';
 
   return (
     <View style={styles.container}>
-
       {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
@@ -42,7 +36,6 @@ export default function Configuracoes() {
         <View style={styles.avatar}>
           <Text style={styles.avatarTexto}>{iniciais || '?'}</Text>
         </View>
-
         <View>
           <Text style={styles.nome}>{usuario?.nome || 'Usuário'}</Text>
           <Text style={styles.email}>{usuario?.email || 'email@email.com'}</Text>
@@ -53,26 +46,41 @@ export default function Configuracoes() {
       <Text style={styles.tituloSecao}>CONTA</Text>
 
       <View style={styles.cardOpcoes}>
-        <Item icon="person-outline" texto="Editar Perfil" />
-        <Item icon="lock-closed-outline" texto="Alterar Senha" />
-        <Item icon="mail-outline" texto="Notificações" />
+        <Item 
+          icon="person-outline" 
+          texto="Editar Perfil" 
+          onPress={() => router.push('/perfil' as any)} 
+        />
+        <Item 
+          icon="lock-closed-outline" 
+          texto="Alterar Senha" 
+          onPress={() => router.push('/alterar_senha' as any)} 
+        />
+        <Item 
+          icon="mail-outline" 
+          texto="Notificações" 
+          onPress={() => console.log('Notificações clicado')} 
+        />
       </View>
 
       {/* ZONA DE PERIGO */}
       <Text style={styles.tituloSecao}>ZONA DE PERIGO</Text>
-
       <View style={styles.cardOpcoes}>
-        <Item icon="trash-outline" texto="Apagar Conta" perigo />
+        <Item 
+          icon="trash-outline" 
+          texto="Apagar Conta" 
+          perigo 
+          onPress={() => alert('Em desenvolvimento')} 
+        />
       </View>
-
     </View>
   );
 }
 
-// 🔹 COMPONENTE ITEM
-function Item({ icon, texto, perigo = false }: any) {
+// 🔹 COMPONENTE ITEM (AJUSTADO)
+function Item({ icon, texto, onPress, perigo = false }: any) {
   return (
-    <TouchableOpacity style={styles.item}>
+    <TouchableOpacity style={styles.item} onPress={onPress}>
       <View style={styles.itemLeft}>
         <Ionicons 
           name={icon} 
@@ -84,102 +92,23 @@ function Item({ icon, texto, perigo = false }: any) {
           {texto}
         </Text>
       </View>
-
       <Ionicons name="chevron-forward" size={18} color="#999" />
     </TouchableOpacity>
   );
 }
 
-// 🎨 ESTILOS
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F4F7FB',
-  },
-
-  header: {
-    backgroundColor: '#244d7a',
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  headerTitulo: {
-    color: '#FFF',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-
-  cardUsuario: {
-    backgroundColor: '#3A6EA5',
-    margin: 20,
-    borderRadius: 20,
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#5F89B5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 15,
-  },
-
-  avatarTexto: {
-    color: '#FFF',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-
-  nome: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-
-  email: {
-    color: '#D6E4F0',
-    fontSize: 13,
-  },
-
-  tituloSecao: {
-    marginLeft: 20,
-    marginTop: 10,
-    marginBottom: 5,
-    color: '#7A8FA6',
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-
-  cardOpcoes: {
-    backgroundColor: '#FFF',
-    marginHorizontal: 20,
-    borderRadius: 15,
-    paddingHorizontal: 10,
-  },
-
-  item: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 14,
-  },
-
-  itemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  itemTexto: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#2C3E50',
-  },
+  container: { flex: 1, backgroundColor: '#F4F7FB' },
+  header: { backgroundColor: '#1e4e79', paddingTop: 50, paddingBottom: 20, paddingHorizontal: 15, flexDirection: 'row', alignItems: 'center' },
+  headerTitulo: { color: '#FFF', fontSize: 20, fontWeight: 'bold', marginLeft: 10 },
+  cardUsuario: { backgroundColor: '#3A6EA5', margin: 20, borderRadius: 20, padding: 20, flexDirection: 'row', alignItems: 'center' },
+  avatar: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#5F89B5', alignItems: 'center', justifyContent: 'center', marginRight: 15 },
+  avatarTexto: { color: '#FFF', fontSize: 20, fontWeight: 'bold' },
+  nome: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  email: { color: '#D6E4F0', fontSize: 13 },
+  tituloSecao: { marginLeft: 20, marginTop: 10, marginBottom: 5, color: '#7A8FA6', fontWeight: 'bold', fontSize: 12 },
+  cardOpcoes: { backgroundColor: '#FFF', marginHorizontal: 20, borderRadius: 15, paddingHorizontal: 10 },
+  item: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14 },
+  itemLeft: { flexDirection: 'row', alignItems: 'center' },
+  itemTexto: { fontSize: 15, fontWeight: '600', color: '#2C3E50' },
 });
