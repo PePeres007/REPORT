@@ -5,15 +5,16 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
 
 import { controladorHome } from '../controllers/controlador_home';
+import { CATEGORIAS } from '../controllers/controlador_report'; // Adicione este import
 
 export default function MapaScreen() {
   const controlador = new controladorHome();
   const router = useRouter();
   const mapRef = useRef<MapView>(null);
   const [listaDenuncias, setListaDenuncias] = useState<any[]>([]);
-  const [denunciaLocal, setDenunciaLocal] = useState<{ latitude: number, longitude: number } | null>(null);
-
+  const [denunciaLocal, setDenunciaLocal] = useState<{ latitude: number, longitude: number } | null>(null);  
   useEffect(() => {
+
     const buscarDados = async () => {
       const dados = await controlador.carregarDenuncias();
       setListaDenuncias(dados);
@@ -48,14 +49,47 @@ export default function MapaScreen() {
           maximumZ={19}
         />
 
-        {listaDenuncias.map((item) => (
-          <Marker
-            key={item.id}
-            coordinate={{ latitude: item.latitude, longitude: item.longitude }}
-            title={item.titulo}
-            pinColor="purple"
-          />
-        ))}
+        {/* --- MARCADORES DAS DENÚNCIAS --- */}
+        {listaDenuncias.map((item) => {
+          // Busca o ícone da categoria para mostrar no mapa
+          const iconeCat = CATEGORIAS.find(c => c.id === item.categoria)?.icone || '📍';
+
+          return (
+            <Marker
+              key={item.id}
+              coordinate={{ latitude: item.latitude, longitude: item.longitude }}
+              onPress={() => {
+            // 1. Verifique se o ID existe no console do VS Code / Metro
+                console.log("Clique na denúncia. ID recuperado:", item.id);
+                          
+                if (!item.id) {
+                  console.error("ERRO: Esta denúncia não possui ID no estado local.");
+                  return;
+                }
+              
+                           
+                // Navegação enviando todos os dados necessários
+                    router.push({
+                      pathname: '/detalhes_report',
+                      params: {
+                        id: item.id.toString(),
+                      
+                        categoria: item.categoria ?? '',
+                        fotoUrl: item.fotoUrl ?? '',
+                        endereco: item.endereco ?? '',
+                        descricao: item.descricao ?? '',
+                        urgencia: item.urgencia ?? '',
+                      },
+                    });
+                  }}
+            >
+              {/* Customização visual do marcador (Bolinha branca com ícone) */}
+              <View style={styles.marcadorCustomizado}>
+                <Text style={styles.textoMarcador}>{iconeCat}</Text>
+              </View>
+            </Marker>
+          );
+        })}
 
         {denunciaLocal && (
           <Marker coordinate={denunciaLocal} pinColor="red" />
@@ -174,5 +208,22 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontWeight: '600',
     fontSize: 17,
+  },
+  marcadorCustomizado: {
+    backgroundColor: 'white',
+    padding: 6,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#7B1FA2', // Cor primária 
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textoMarcador: {
+    fontSize: 18,
   },
 });

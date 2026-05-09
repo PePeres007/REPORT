@@ -2,6 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { addDoc, collection, Timestamp } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { updateDoc, doc, arrayUnion } from 'firebase/firestore';
 import { Alert } from 'react-native';
 import { db, storage } from '../services/firebaseConfig';
 import { controladorGeral } from './controlador_geral';
@@ -120,9 +121,8 @@ export class controladorReport extends controladorGeral {
   }
 
   // Salva o report no Firebase Firestore
-  async salvarReport(dados: DadosReport, userId: string | null): Promise<boolean> {
+async salvarReport(dados: DadosReport, userId: string | null): Promise<boolean> {
     try {
-      // Se houver foto, faz upload e obtém a URL pública antes de salvar
       let fotoUrl: string | null = null;
       if (dados.fotoUri) {
         fotoUrl = await this.fazUploadFoto(dados.fotoUri, userId ?? 'anonimo');
@@ -130,7 +130,7 @@ export class controladorReport extends controladorGeral {
 
       await addDoc(collection(db, 'denuncias'), {
         categoria: dados.categoria,
-        fotoUrl: fotoUrl,           // URL pública do Storage (funciona em qualquer dispositivo)
+        fotoUrl: fotoUrl,
         endereco: dados.endereco,
         descricao: dados.descricao,
         urgencia: dados.urgencia,
@@ -139,11 +139,40 @@ export class controladorReport extends controladorGeral {
         userId: userId ?? 'anonimo',
         status: 'pendente',
         criadoEm: Timestamp.now(),
+        // INICIALIZANDO OS ARRAYS PARA EVITAR ERRO DE LEITURA
+        apoiadores: [],
+        resolvidos: []
       });
       console.log('✅ Report salvo com sucesso!');
       return true;
     } catch (error) {
       console.log('❌ Erro ao salvar report:', error);
+      return false;
+    }
+  }
+    async apoiarDenuncia(reportId: string, userId: string) {
+    try {
+      const docRef = doc(db, 'denuncias', reportId);
+      await updateDoc(docRef, {
+        apoiadores: arrayUnion(userId)
+      });
+      return true;
+    } catch (e) {
+      console.error("Erro ao apoiar:", e);
+      return false;
+    }
+  }
+
+  async resolverDenuncia(reportId: string, userId: string) {
+    try {
+      const docRef = doc(db, 'denuncias', reportId);
+      await updateDoc(docRef, {
+        resolvidos: arrayUnion(userId),
+        status: 'em_analise' // Opcional: muda o status global
+      });
+      return true;
+    } catch (e) {
+      console.error("Erro ao resolver:", e);
       return false;
     }
   }
