@@ -40,9 +40,8 @@ export default function CadastroFuncionario() {
         <TouchableOpacity 
           style={styles.button} 
           onPress={() => {
-            // Reaproveitamos o controlador de cadastro, mas a lógica de 'tipo' 
-            // será tratada pelo Breno no Login ou por você em um ajuste futuro
-            controlador.realizarCadastro(nome, "01/01/2000", email, senha, senha, "");
+            // Chamando a nova rotina especializada para servidores públicos
+            controlador.realizarCadastroFuncionario(nome, email, senha, secretaria);
           }}
         >
           <Text style={styles.buttonText}>Cadastrar Servidor</Text>

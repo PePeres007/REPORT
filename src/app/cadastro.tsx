@@ -102,6 +102,16 @@ export default function Cadastro() {
           <TouchableOpacity style={styles.buttonSignUp} onPress={() => controlador.realizarCadastro(nome, dataNascimento, email, password, confirmPassword, emailError)}>
             <Text style={styles.buttonText}>Criar Conta</Text>
           </TouchableOpacity>
+          {/* --- LINK PARA CADASTRO DE FUNCIONÁRIO DA PREFEITURA --- */}
+          <TouchableOpacity 
+            style={styles.linkPrefeituraContainer} 
+            onPress={() => router.push('/cadastro_funcionario' as any)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.linkPrefeituraTexto}>
+              É servidor público? <Text style={styles.linkPrefeituraDestaque}>Cadastre-se aqui</Text>
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -120,5 +130,19 @@ const styles = StyleSheet.create({
   inputError: { borderColor: '#EF4444' },
   errorText: { color: '#EF4444', fontSize: 12, marginTop: 5 },
   buttonSignUp: { backgroundColor: '#1E293B', padding: 18, borderRadius: 12, alignItems: 'center', marginTop: 10 },
-  buttonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' }
+  buttonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  linkPrefeituraContainer: {
+    marginTop: 25,
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  linkPrefeituraTexto: {
+    fontSize: 15,
+    color: '#64748B', // Tom cinza sutil para a base do texto
+  },
+  linkPrefeituraDestaque: {
+    color: '#1E293B', // Mesma cor escura do botão principal para dar destaque de clique
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+  },
 });

@@ -1,5 +1,6 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from 'firebase/firestore'; 
+import { Alert } from 'react-native';
 import { auth, db } from '../services/firebaseConfig';
 import { controladorGeral } from "./controlador_geral";
 
@@ -122,6 +123,66 @@ export class controladorCadastro extends controladorGeral {
       }
       
       this.exibirMensagem('Erro no Cadastro', mensagem);
+    }
+  }
+  public async realizarCadastroFuncionario(
+    nome: string,
+    email: string,
+    senha: string,
+    secretaria: string
+  ): Promise<boolean> {
+    // Validações básicas de preenchimento
+    if (!nome.trim() || !email.trim() || !senha.trim() || !secretaria.trim()) {
+      Alert.alert('Erro', 'Todos os campos são obrigatórios.');
+      return false;
+    }
+
+    if (senha.length < 6) {
+      Alert.alert('Erro', 'A senha provisória deve ter no mínimo 6 caracteres.');
+      return false;
+    }
+
+    try {
+      // Passo 1: Criar credencial de autenticação no Firebase
+      const resultado = await createUserWithEmailAndPassword(auth, email, senha);
+      const user = resultado.user;
+
+      // Passo 2: Salvar os metadados do servidor no Firestore utilizando o UID gerado
+      // Salvamos na coleção 'usuarios' identificando o perfil dele
+      await setDoc(doc(db, 'usuarios', user.uid), {
+        nome: nome,
+        email: email,
+        secretaria: secretaria,
+        tipo: 'funcionario', // Diferencial crítico para o painel de gestão
+        criadoEm: new Date(),
+      });
+
+      Alert.alert('Sucesso', 'Servidor público cadastrado com sucesso!');
+      this.router.back(); // Retorna à tela anterior após o sucesso
+      return true;
+
+    } catch (error: any) {
+      console.error('❌ Erro completo no cadastro do funcionário:', error);
+
+      // Se criou a conta no Auth mas falhou ao gravar no Firestore (Regras de banco/Conexão)
+      // deletamos o usuário recém-criado para não travar o e-mail nos próximos testes
+      if (auth.currentUser && error.code !== 'auth/email-already-in-use') {
+        await auth.currentUser.delete();
+        console.log('🧹 Usuário do Auth removido para limpar o e-mail após falha de banco.');
+      }
+
+      if (error.code === 'auth/email-already-in-use') {
+        Alert.alert(
+          'E-mail já cadastrado',
+          'Este e-mail institucional já possui uma conta criada.'
+        );
+      } else {
+        Alert.alert(
+          'Erro no Banco de Dados', 
+          'A conta de autenticação foi validada, mas o Firestore barrou o registro. Verifique as Regras de Segurança do console do Firebase.'
+        );
+      }
+      return false;
     }
   }
 }
