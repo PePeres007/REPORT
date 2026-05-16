@@ -59,7 +59,7 @@ export default function Configuracoes() {
         <Item 
           icon="mail-outline" 
           texto="Notificações" 
-          onPress={() => console.log('Notificações clicado')} 
+          onPress={() => router.push('/notificacoes' as any)} 
         />
       </View>
 
