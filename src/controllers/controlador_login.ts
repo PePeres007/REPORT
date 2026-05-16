@@ -14,7 +14,7 @@ export class controladorLogin extends controladorGeral {
     //Valida se o formato do e-mail possui um domínio permitido pelo sistema.
   public validarFormatoEmail(email: string): string {
   const emailLimpo = email.trim().toLowerCase();
-  const dominiosValidos = ['@gmail.com', '@hotmail.com'];
+  const dominiosValidos = ['@gmail.com', '@hotmail.com', '@prefeitura.gov.br', '@recife.pe.gov.br'];
   // Se o campo estiver vazio, não mostra erro imediatamente
   if (emailLimpo.length === 0) {
     return '';
@@ -89,4 +89,4 @@ export class controladorLogin extends controladorGeral {
       this.exibirMensagem('Erro', mensagem);
     }
   }
-}
+}
