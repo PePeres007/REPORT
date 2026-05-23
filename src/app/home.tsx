@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
 
 import { controladorHome } from '../controllers/controlador_home';
-import { CATEGORIAS } from '../controllers/controlador_report'; // Adicione este import
+import { CATEGORIAS } from '../controllers/controlador_report';
+import { obterUsuario } from '../services/userStorage';
 
 export default function MapaScreen() {
   const controlador = new controladorHome();
@@ -13,7 +14,13 @@ export default function MapaScreen() {
   const mapRef = useRef<MapView>(null);
   const [listaDenuncias, setListaDenuncias] = useState<any[]>([]);
   const [denunciaLocal, setDenunciaLocal] = useState<{ latitude: number, longitude: number } | null>(null);  
+  const [usuarioLogado, setUsuarioLogado] = useState<any>(null);
+
   useEffect(() => {
+    const carregarUsuario = async () => {
+      const dados = await obterUsuario();
+      setUsuarioLogado(dados);
+    };
 
     const buscarDados = async () => {
       const dados = await controlador.carregarDenuncias();
@@ -27,12 +34,26 @@ export default function MapaScreen() {
       }
     };
 
+    carregarUsuario();
     buscarDados();
     buscarLocalizacao();
   }, []);
 
   const segurarNoMapa = (evento: any) => {
     setDenunciaLocal(evento.nativeEvent.coordinate);
+  };
+
+  const acessarPainelPrefeitura = () => {
+    const emailUsuarioLogado = usuarioLogado?.email || "";
+
+    if (emailUsuarioLogado.endsWith("@prefeitura.gov.br")) {
+      router.push('/lista_gestao' as any);
+    } else {
+      Alert.alert(
+        "Acesso Negado 🛑",
+        "Este painel é de uso exclusivo para funcionários e gestores credenciados da Prefeitura."
+      );
+    }
   };
 
   return (
@@ -49,9 +70,7 @@ export default function MapaScreen() {
           maximumZ={19}
         />
 
-        {/* --- MARCADORES DAS DENÚNCIAS --- */}
         {listaDenuncias.map((item) => {
-          // Busca o ícone da categoria para mostrar no mapa
           const iconeCat = CATEGORIAS.find(c => c.id === item.categoria)?.icone || '📍';
 
           return (
@@ -59,7 +78,6 @@ export default function MapaScreen() {
               key={item.id}
               coordinate={{ latitude: item.latitude, longitude: item.longitude }}
               onPress={() => {
-            // 1. Verifique se o ID existe no console do VS Code / Metro
                 console.log("Clique na denúncia. ID recuperado:", item.id);
                           
                 if (!item.id) {
@@ -67,23 +85,19 @@ export default function MapaScreen() {
                   return;
                 }
               
-                           
-                // Navegação enviando todos os dados necessários
-                    router.push({
-                      pathname: '/detalhes_report',
-                      params: {
-                        id: item.id.toString(),
-                      
-                        categoria: item.categoria ?? '',
-                        fotoUrl: item.fotoUrl ?? '',
-                        endereco: item.endereco ?? '',
-                        descricao: item.descricao ?? '',
-                        urgencia: item.urgencia ?? '',
-                      },
-                    });
-                  }}
+                router.push({
+                  pathname: '/detalhes_report',
+                  params: {
+                    id: item.id.toString(),
+                    categoria: item.categoria ?? '',
+                    fotoUrl: item.fotoUrl ?? '',
+                    endereco: item.endereco ?? '',
+                    descricao: item.descricao ?? '',
+                    urgencia: item.urgencia ?? '',
+                  },
+                });
+              }}
             >
-              {/* Customização visual do marcador (Bolinha branca com ícone) */}
               <View style={styles.marcadorCustomizado}>
                 <Text style={styles.textoMarcador}>{iconeCat}</Text>
               </View>
@@ -104,7 +118,6 @@ export default function MapaScreen() {
         </Text>
 
         <View style={styles.rowBotoes}>
-          {/* BOTÃO NOVA OCORRÊNCIA */}
           <TouchableOpacity 
             style={[styles.botaoReportar, !denunciaLocal && styles.botaoDesativado]}
             disabled={!denunciaLocal}
@@ -124,7 +137,13 @@ export default function MapaScreen() {
             <Text style={styles.botaoTexto}>Nova Ocorrência</Text>
           </TouchableOpacity>
 
-          {/* 🔥 BOTÃO CONFIGURAÇÕES (AGORA FUNCIONANDO) */}
+          <TouchableOpacity 
+            style={[styles.botaoConfig, { marginRight: 12 }]}
+            onPress={acessarPainelPrefeitura}
+          >
+            <Ionicons name="briefcase" size={22} color="#1A3B5D" />
+          </TouchableOpacity>
+
           <TouchableOpacity 
             style={styles.botaoConfig}
             onPress={() => router.push('/configuracoes' as any)}
@@ -140,7 +159,6 @@ export default function MapaScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: '100%', height: '100%' },
-
   overlayBottom: {
     position: 'absolute',
     bottom: 25,
@@ -151,14 +169,12 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 15,
     alignItems: 'center',
-
     elevation: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
   },
-
   textoInstrucao: {
     color: '#6A89A7',
     fontSize: 16,
@@ -166,13 +182,11 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     paddingHorizontal: 25,
   },
-
   rowBotoes: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
   },
-
   botaoReportar: {
     flexDirection: 'row',
     backgroundColor: '#2F5D8C',
@@ -184,11 +198,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 12,
   },
-
   botaoDesativado: {
     backgroundColor: '#A0B4CB',
   },
-
   botaoConfig: {
     backgroundColor: '#EEF3F8',
     width: 52,
@@ -199,11 +211,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E1E9F1',
   },
-
   iconeBotao: {
     marginRight: 10,
   },
-
   botaoTexto: {
     color: '#FFF',
     fontWeight: '600',
@@ -214,7 +224,7 @@ const styles = StyleSheet.create({
     padding: 6,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#7B1FA2', // Cor primária 
+    borderColor: '#7B1FA2',
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
