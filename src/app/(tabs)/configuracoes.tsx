@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { obterUsuario } from '../services/userStorage';
+import { obterUsuario } from '../../services/userStorage';
 
 export default function Configuracoes() {
   const router = useRouter();

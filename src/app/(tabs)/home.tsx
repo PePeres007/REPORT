@@ -4,9 +4,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
 
-import { controladorHome } from '../controllers/controlador_home';
-import { CATEGORIAS } from '../controllers/controlador_report';
-import { obterUsuario } from '../services/userStorage';
+import { controladorHome } from '../../controllers/controlador_home';
+import { CATEGORIAS } from '../../controllers/controlador_report';
+import { obterUsuario } from '../../services/userStorage';
 
 export default function MapaScreen() {
   const controlador = new controladorHome();
@@ -113,44 +113,27 @@ export default function MapaScreen() {
       <View style={styles.overlayBottom}>
         <Text style={styles.textoInstrucao}>
           {denunciaLocal 
-            ? "Local selecionado! Clique abaixo para reportar." 
-            : "Toque em qualquer ponto do mapa para registrar uma ocorrência"}
+            ? " Local selecionado! Confirme abaixo." 
+            : "Toque em qualquer ponto do mapa para registar uma ocorrência"}
         </Text>
 
-        <View style={styles.rowBotoes}>
+        {denunciaLocal && (
           <TouchableOpacity 
-            style={[styles.botaoReportar, !denunciaLocal && styles.botaoDesativado]}
-            disabled={!denunciaLocal}
+            style={styles.botaoReportar}
             onPress={() => {
-              if (denunciaLocal) {
-                router.push({
-                  pathname: '/report' as any,
-                  params: {
-                    lat: denunciaLocal.latitude.toString(),
-                    lon: denunciaLocal.longitude.toString(),
-                  },
-                });
-              }
+              router.push({
+                pathname: '/report' as any,
+                params: {
+                  lat: denunciaLocal.latitude.toString(),
+                  lon: denunciaLocal.longitude.toString(),
+                },
+              });
             }}
           >
-            <Ionicons name="location-sharp" size={20} color="#FFF" style={styles.iconeBotao} />
-            <Text style={styles.botaoTexto}>Nova Ocorrência</Text>
+            <Ionicons name="alert-circle" size={22} color="#FFF" style={styles.iconeBotao} />
+            <Text style={styles.botaoTexto}>Reportar Problema Aqui</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.botaoConfig, { marginRight: 12 }]}
-            onPress={acessarPainelPrefeitura}
-          >
-            <Ionicons name="briefcase" size={22} color="#1A3B5D" />
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.botaoConfig}
-            onPress={() => router.push('/configuracoes' as any)}
-          >
-            <Ionicons name="settings-sharp" size={24} color="#1A3B5D" />
-          </TouchableOpacity>
-        </View>
+        )}
       </View>
     </View>
   );
@@ -161,7 +144,7 @@ const styles = StyleSheet.create({
   map: { width: '100%', height: '100%' },
   overlayBottom: {
     position: 'absolute',
-    bottom: 25,
+    bottom: 110,
     alignSelf: 'center',
     width: '94%',
     backgroundColor: '#F7F9FC',
