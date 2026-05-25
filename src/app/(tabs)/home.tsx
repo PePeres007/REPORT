@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
 
 import { controladorHome } from '../../controllers/controlador_home';
@@ -12,25 +12,30 @@ export default function MapaScreen() {
   const controlador = new controladorHome();
   const router = useRouter();
   const mapRef = useRef<MapView>(null);
+  
   const [listaDenuncias, setListaDenuncias] = useState<any[]>([]);
   const [denunciaLocal, setDenunciaLocal] = useState<{ latitude: number, longitude: number } | null>(null);  
   const [usuarioLogado, setUsuarioLogado] = useState<any>(null);
+  const [buscandoGps, setBuscandoGps] = useState(false);
 
   useEffect(() => {
+    // 1. Carrega os dados do utilizador
     const carregarUsuario = async () => {
       const dados = await obterUsuario();
       setUsuarioLogado(dados);
     };
 
+    // 2. Carrega os marcadores de denúncias da cidade
     const buscarDados = async () => {
       const dados = await controlador.carregarDenuncias();
       setListaDenuncias(dados);
     };
 
+    // 3. RECUPERA A GEOLOCALIZAÇÃO: Pede permissão e centraliza o mapa no utilizador
     const buscarLocalizacao = async () => {
       const localizacao = await controlador.obterLocalizacaoAtual();
-      if (localizacao) {
-        mapRef.current?.animateToRegion(localizacao, 1000);
+      if (localizacao && mapRef.current) {
+        mapRef.current.animateToRegion(localizacao, 1000);
       }
     };
 
@@ -56,13 +61,47 @@ export default function MapaScreen() {
     }
   };
 
+  const lidarComNovaOcorrencia = async () => {
+    if (denunciaLocal) {
+      // Cenário A: Utilizador escolheu um local específico clicando no mapa
+      router.push({
+        pathname: '/report' as any,
+        params: {
+          lat: denunciaLocal.latitude.toString(),
+          lon: denunciaLocal.longitude.toString(),
+        },
+      });
+    } else {
+      // Cenário B: Utilizador clicou direto no botão. Pegamos o GPS exato!
+      setBuscandoGps(true);
+      const localizacaoAtual = await controlador.obterLocalizacaoAtual();
+      setBuscandoGps(false);
+
+      if (localizacaoAtual) {
+        router.push({
+          pathname: '/report' as any,
+          params: {
+            lat: localizacaoAtual.latitude.toString(),
+            lon: localizacaoAtual.longitude.toString(),
+          },
+        });
+      } else {
+        Alert.alert(
+          "Permissão de GPS 📍",
+          "Não conseguimos obter a sua localização. Ative o GPS ou pressione o dedo no mapa para marcar um local."
+        );
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       <MapView
         ref={mapRef}
         style={styles.map}
         initialRegion={controlador.obterRegiaoInicial()}
-        showsUserLocation={true}
+        showsUserLocation={true} // Isto garante que a "bolinha azul" aparece!
+        showsMyLocationButton={false} // Escondemos o botão padrão para manter o design limpo
         onLongPress={segurarNoMapa}
       >
         <UrlTile
@@ -78,22 +117,11 @@ export default function MapaScreen() {
               key={item.id}
               coordinate={{ latitude: item.latitude, longitude: item.longitude }}
               onPress={() => {
-                console.log("Clique na denúncia. ID recuperado:", item.id);
-                          
-                if (!item.id) {
-                  console.error("ERRO: Esta denúncia não possui ID no estado local.");
-                  return;
-                }
-              
+                if (!item.id) return;
                 router.push({
                   pathname: '/detalhes_report',
                   params: {
                     id: item.id.toString(),
-                    categoria: item.categoria ?? '',
-                    fotoUrl: item.fotoUrl ?? '',
-                    endereco: item.endereco ?? '',
-                    descricao: item.descricao ?? '',
-                    urgencia: item.urgencia ?? '',
                   },
                 });
               }}
@@ -110,30 +138,47 @@ export default function MapaScreen() {
         )}
       </MapView>
 
+      {/* Botão de centralizar no utilizador estilo Google Maps */}
+      <TouchableOpacity 
+        style={styles.botaoLocalizacaoAtual} 
+        onPress={async () => {
+          const loc = await controlador.obterLocalizacaoAtual();
+          if (loc && mapRef.current) mapRef.current.animateToRegion(loc, 500);
+        }}
+      >
+        <Ionicons name="locate" size={24} color="#1A3B5D" />
+      </TouchableOpacity>
+
       <View style={styles.overlayBottom}>
         <Text style={styles.textoInstrucao}>
           {denunciaLocal 
-            ? " Local selecionado! Confirme abaixo." 
-            : "Toque em qualquer ponto do mapa para registar uma ocorrência"}
+            ? "📍 Local marcado! Clique abaixo para continuar." 
+            : "Toque no mapa para escolher um local específico ou clique abaixo para reportar na sua posição atual."}
         </Text>
 
-        {denunciaLocal && (
+        <View style={styles.rowBotoes}>
           <TouchableOpacity 
-            style={styles.botaoReportar}
-            onPress={() => {
-              router.push({
-                pathname: '/report' as any,
-                params: {
-                  lat: denunciaLocal.latitude.toString(),
-                  lon: denunciaLocal.longitude.toString(),
-                },
-              });
-            }}
+            style={[styles.botaoReportar, buscandoGps && styles.botaoDesativado]}
+            onPress={lidarComNovaOcorrencia}
+            disabled={buscandoGps}
           >
-            <Ionicons name="alert-circle" size={22} color="#FFF" style={styles.iconeBotao} />
-            <Text style={styles.botaoTexto}>Reportar Problema Aqui</Text>
+            {buscandoGps ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <>
+                <Ionicons name="location-sharp" size={20} color="#FFF" style={styles.iconeBotao} />
+                <Text style={styles.botaoTexto}>Nova Ocorrência</Text>
+              </>
+            )}
           </TouchableOpacity>
-        )}
+
+          <TouchableOpacity 
+            style={styles.botaoConfig}
+            onPress={acessarPainelPrefeitura}
+          >
+            <Ionicons name="briefcase" size={22} color="#1A3B5D" />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -142,9 +187,25 @@ export default function MapaScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: '100%', height: '100%' },
+  botaoLocalizacaoAtual: {
+    position: 'absolute',
+    right: 20,
+    bottom: 200, // Fica logo acima do painel de reportar
+    backgroundColor: '#FFF',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
   overlayBottom: {
     position: 'absolute',
-    bottom: 110,
+    bottom: 110, // Ajustado para não sobrepor a NavBar inferior!
     alignSelf: 'center',
     width: '94%',
     backgroundColor: '#F7F9FC',
@@ -160,10 +221,11 @@ const styles = StyleSheet.create({
   },
   textoInstrucao: {
     color: '#6A89A7',
-    fontSize: 16,
+    fontSize: 14,
     textAlign: 'center',
     marginBottom: 18,
-    paddingHorizontal: 25,
+    paddingHorizontal: 10,
+    lineHeight: 20,
   },
   rowBotoes: {
     flexDirection: 'row',
@@ -172,7 +234,7 @@ const styles = StyleSheet.create({
   },
   botaoReportar: {
     flexDirection: 'row',
-    backgroundColor: '#2F5D8C',
+    backgroundColor: '#7B1FA2', // Ajustado para o roxo da aplicação
     paddingVertical: 16,
     paddingHorizontal: 28,
     borderRadius: 50,
@@ -200,7 +262,7 @@ const styles = StyleSheet.create({
   botaoTexto: {
     color: '#FFF',
     fontWeight: '600',
-    fontSize: 17,
+    fontSize: 16,
   },
   marcadorCustomizado: {
     backgroundColor: 'white',

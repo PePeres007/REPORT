@@ -1,5 +1,6 @@
-import { getAuth } from 'firebase/auth';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { getAuth } from 'firebase/auth';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -34,8 +35,8 @@ export default function ReportScreen() {
   const params = useLocalSearchParams<{ lat: string; lon: string }>();
   const controlador = new controladorReport(router);
   const [urgencia, setUrgencia] = useState('Médio'); // Valor padrão
-  const latitude = parseFloat(params.lat ?? '0');
-  const longitude = parseFloat(params.lon ?? '0');
+  const [latitude, setLatitude] = useState(parseFloat(params.lat ?? '0'));
+  const [longitude, setLongitude] = useState(parseFloat(params.lon ?? '0'));
 
   // ── Estado do wizard ────────────────────────────────────────────────────────
   const [passo, setPasso] = useState<Passo>(1);
@@ -45,6 +46,9 @@ export default function ReportScreen() {
   const [carregandoEndereco, setCarregandoEndereco] = useState(false);
   const [descricao, setDescricao] = useState('');
   const [enviando, setEnviando] = useState(false);
+
+  const [sugestoes, setSugestoes] = useState<any[]>([]);
+  const [buscandoSugestoes, setBuscandoSugestoes] = useState(false);
 
   // ── Animação de progresso ───────────────────────────────────────────────────
   const progressoAnim = useRef(new Animated.Value(1)).current;
@@ -118,6 +122,40 @@ export default function ReportScreen() {
       },
       { text: 'Cancelar', style: 'cancel' },
     ]);
+  };
+
+  // ── Endereço ───────────────────────────────────────────────────────────────────
+// Novo Ref para guardar o temporizador do "Debounce"
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Nova função inteligente de digitação
+  const handleInputChangeEndereco = (texto: string) => {
+    setEndereco(texto);
+
+    // Se já tinha uma busca programada, cancela! (Usuário ainda está digitando)
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    if (texto.length > 4) {
+      // Cria um novo agendamento: só chama a API se ele parar de digitar por 800ms
+      debounceTimer.current = setTimeout(async () => {
+        setBuscandoSugestoes(true);
+        const lista = await controlador.buscarSugestoesEndereco(texto);
+        setSugestoes(lista);
+        setBuscandoSugestoes(false);
+      }, 800);
+    } else {
+      setSugestoes([]);
+    }
+  };
+
+  // Quando o usuário clica em uma das sugestões da lista
+  const selecionarSugestao = (item: any) => {
+    setEndereco(item.enderecoCompleto);
+    setLatitude(item.lat); // Altera o PIN invisível para o local digitado!
+    setLongitude(item.lon);
+    setSugestoes([]); // Limpa a listagem
   };
 
   // ── Envio ───────────────────────────────────────────────────────────────────
@@ -223,15 +261,15 @@ export default function ReportScreen() {
           </View>
         );
 
-      // ── PASSO 3: ENDEREÇO ───────────────────────────────────────────────────
+      // ── PASSO 3: ENDEREÇO COM AUTOCOMPLETE —──────────────────────────────────
       case 3:
         return (
           <View style={styles.conteudoPasso}>
             <Text style={styles.tituloPasso}>Confirme o endereço</Text>
             <Text style={styles.subtituloPasso}>
-              O endereço foi preenchido automaticamente com base no local marcado no mapa.
-              Você pode editá-lo se necessário.
+              O endereço foi preenchido com base na posição inicial. Digite para buscar e autocompletar um novo local caso necessário.
             </Text>
+            
             {carregandoEndereco ? (
               <View style={styles.carregandoEndereco}>
                 <ActivityIndicator size="large" color={COR_PRIMARIA} />
@@ -239,18 +277,37 @@ export default function ReportScreen() {
               </View>
             ) : (
               <View style={styles.campoEnderecoContainer}>
-                <Text style={styles.labelCampo}>📍 Endereço</Text>
+                <Text style={styles.labelCampo}>📍 Endereço da Ocorrência</Text>
                 <TextInput
                   style={styles.inputEndereco}
                   value={endereco}
-                  onChangeText={setEndereco}
-                  placeholder="Digite o endereço manualmente..."
+                  onChangeText={handleInputChangeEndereco} // Dispara a busca em tempo real
+                  placeholder="Comece a digitar o nome da rua ou avenida..."
                   placeholderTextColor="#B0B0B0"
                   multiline
-                  numberOfLines={3}
+                  numberOfLines={2}
                 />
+
+                {buscandoSugestoes && <ActivityIndicator size="small" color={COR_PRIMARIA} style={{ marginTop: 10 }} />}
+
+                {/* MENU DROP-DOWN DE SUGESTÕES ESTILO MAPS */}
+                {sugestoes.length > 0 && (
+                  <View style={styles.dropdownSugestoes}>
+                    {sugestoes.map((item, index) => (
+                      <TouchableOpacity 
+                        key={index} 
+                        style={styles.itemSugestao} 
+                        onPress={() => selecionarSugestao(item)}
+                      >
+                        <Ionicons name="location" size={16} color="#7B1FA2" style={{ marginRight: 8, marginTop: 2 }} />
+                        <Text style={styles.textoSugestao} numberOfLines={2}>{item.enderecoCompleto}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+
                 <TouchableOpacity style={styles.botaoRedetectar} onPress={buscarEndereco}>
-                  <Text style={styles.textoBotaoRedetectar}>🔄 Redetectar endereço</Text>
+                  <Text style={styles.textoBotaoRedetectar}>🔄 Resetar para localização original</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -807,5 +864,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
     letterSpacing: 0.5,
+  },
+  dropdownSugestoes: { 
+    backgroundColor: '#FFF',
+    borderRadius: 12, 
+    borderWidth: 1,
+    borderColor: '#E8D5F5', marginTop: 5,
+    elevation: 3, maxHeight: 200,
+    overflow: 'hidden' 
+  },
+  itemSugestao: { 
+    flexDirection: 'row', 
+    padding: 14, 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#F5F0FA', 
+    alignItems: 'flex-start' 
+  },
+  textoSugestao: { 
+    fontSize: 13, 
+    color: '#2D1B4E', 
+    flex: 1, 
+    lineHeight: 18 
   },
 });

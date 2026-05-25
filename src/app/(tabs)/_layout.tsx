@@ -1,21 +1,20 @@
-// src/app/(tabs)/_layout.tsx
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { View, StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false, // Escondemos o header padrão
+        headerShown: false,
         tabBarShowLabel: true,
-        tabBarActiveTintColor: '#7B1FA2', // Sua cor primária
+        tabBarActiveTintColor: '#7B1FA2', // Roxo do REPORT
         tabBarInactiveTintColor: '#94A3B8',
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.tabLabel,
       }}
     >
-      {/* TELA 1: MAPA (A sua home atual) */}
+      {/* 1. MAPA (Esquerda) */}
       <Tabs.Screen
         name="home"
         options={{
@@ -26,34 +25,26 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* TELA 2: MINHAS DENÚNCIAS */}
+      {/* 2. FEED / OCORRÊNCIAS (Meio) */}
       <Tabs.Screen
         name="minhas_denuncias"
         options={{
-          title: 'As Minhas Denúncias',
+          title: 'Ocorrências',
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons name={focused ? "list" : "list-outline"} size={size} color={color} />
           ),
         }}
       />
 
-      {/* TELA 3: CONFIGURAÇÕES (Ocultamos do layout principal para não poluir, 
-          ou podemos redirecionar para a tela existente de configurações) */}
+      {/* 3. CONFIGURAÇÕES / PERFIL (Extrema Direita) */}
       <Tabs.Screen
-        name="configuracoes_tab"
+        name="configuracoes"
         options={{
           title: 'Perfil',
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons name={focused ? "person" : "person-outline"} size={size} color={color} />
           ),
         }}
-        listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            // Em vez de abrir uma tab vazia, força a ir para a sua tela de configurações atual
-            e.preventDefault();
-            navigation.navigate('configuracoes');
-          },
-        })}
       />
     </Tabs>
   );
@@ -77,8 +68,5 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     borderTopWidth: 0,
   },
-  tabLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
+  tabLabel: { fontSize: 11, fontWeight: '600' },
 });
