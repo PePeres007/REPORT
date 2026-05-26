@@ -1,8 +1,9 @@
 import * as ImagePicker from 'expo-image-picker';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { Alert } from 'react-native';
 import { auth, db, storage } from '../services/firebaseConfig';
-import { salvarUsuario } from '../services/userStorage';
+import { limparSessao, salvarUsuario } from '../services/userStorage';
 import { controladorGeral } from './controlador_geral';
 
 export class controladorPerfil extends controladorGeral {
@@ -75,6 +76,51 @@ export class controladorPerfil extends controladorGeral {
       this.voltar();
     } catch (error) {
       this.exibirMensagem('Erro', 'Não foi possível salvar as alterações.');
+    }
+  }
+
+  // --- NOVA ROTINA DE EXCLUSÃO DE CONTA ---
+  async handleExcluirContaFinal() {
+    const usuarioAuth = auth.currentUser;
+    
+    if (!usuarioAuth) {
+        this.exibirMensagem("Erro", "Usuário não autenticado.");
+        return;
+    }
+
+    const uid = usuarioAuth.uid;
+
+    try {
+        // ETAPA 1: Apagar os dados cadastrais no Firestore (usando a sua coleção 'usuarios')
+        await deleteDoc(doc(db, 'usuarios', uid));
+        
+        // ETAPA 2: Apagar a autenticação no Firebase Auth
+        await usuarioAuth.delete();
+
+        // ETAPA 3: Limpar armazenamento local e mandar para o login
+        await limparSessao();
+        
+        // Assumindo que a propriedade herdada do controladorGeral que guarda as rotas se chama "router"
+        if (this.router) {
+            this.router.replace('/login');
+        }
+
+        this.exibirMensagem("Sucesso", "Sua conta foi excluída permanentemente.");
+        
+    } catch (error: any) {
+        console.error("Erro completo na exclusão:", error);
+        
+        // Trata erro comum do Firebase que exige login recente para deletar
+        if (error.code === 'auth/requires-recent-login') {
+            Alert.alert(
+                "Ação Necessária ⚠️",
+                "Para sua segurança, refaça o login antes de apagar a conta permanentemente."
+            );
+            await limparSessao();
+            if (this.router) this.router.replace('/login');
+        } else {
+            this.exibirMensagem("Erro", "Não foi possível apagar sua conta agora. Tente novamente mais tarde.");
+        }
     }
   }
 }

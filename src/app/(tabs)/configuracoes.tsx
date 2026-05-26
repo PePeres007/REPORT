@@ -1,13 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'; // 
 
+import { controladorPerfil } from '../../controllers/controlador_perfil';
 import { obterUsuario } from '../../services/userStorage';
 
 export default function Configuracoes() {
   const router = useRouter();
   const [usuario, setUsuario] = useState<any>(null);
+  
+  // Instanciamos o controlador para poder usar a função de apagar conta
+  const controlador = new controladorPerfil(router);
 
   useEffect(() => {
     const carregarUsuario = async () => {
@@ -37,56 +41,60 @@ export default function Configuracoes() {
           <Text style={styles.avatarTexto}>{iniciais || '?'}</Text>
         </View>
         <View>
-          <Text style={styles.nome}>{usuario?.nome || 'Usuário'}</Text>
-          <Text style={styles.email}>{usuario?.email || 'email@email.com'}</Text>
+          <Text style={styles.nome}>{usuario?.nome || 'Carregando...'}</Text>
+          <Text style={styles.email}>{usuario?.email || ''}</Text>
         </View>
       </View>
 
-      {/* CONTA */}
-      <Text style={styles.tituloSecao}>CONTA</Text>
+      <Text style={styles.tituloSecao}>Conta</Text>
+      
+      
+      <BotaoAcao icone="person-outline" texto="Editar Perfil" onPress={() => router.push('/perfil')} />
+      <BotaoAcao icone="lock-closed-outline" texto="Alterar Senha" onPress={() => router.push('/alterar_senha' as any)} />
+      <BotaoAcao icone="notifications-outline" texto="Notificações" onPress={() => router.push('/notificacoes' as any)} />
 
-      <View style={styles.cardOpcoes}>
-        <Item 
-          icon="person-outline" 
-          texto="Editar Perfil" 
-          onPress={() => router.push('/perfil' as any)} 
-        />
-        <Item 
-          icon="lock-closed-outline" 
-          texto="Alterar Senha" 
-          onPress={() => router.push('/alterar_senha' as any)} 
-        />
-        <Item 
-          icon="mail-outline" 
-          texto="Notificações" 
-          onPress={() => router.push('/notificacoes' as any)} 
-        />
-      </View>
+      <Text style={styles.tituloSecao}>Geral</Text>
+      <BotaoAcao icone="help-circle-outline" texto="Ajuda e Suporte" onPress={() => Alert.alert("Suporte", "Em breve")} />
+      <BotaoAcao icone="document-text-outline" texto="Termos de Serviço" onPress={() => Alert.alert("Termos", "Em breve")} />
 
-      {/* ZONA DE PERIGO */}
-      <Text style={styles.tituloSecao}>ZONA DE PERIGO</Text>
-      <View style={styles.cardOpcoes}>
-        <Item 
-          icon="trash-outline" 
-          texto="Apagar Conta" 
-          perigo 
-          onPress={() => alert('Em desenvolvimento')} 
-        />
-      </View>
+      <Text style={styles.tituloSecao}>Ações</Text>
+      
+      
+      <BotaoAcao 
+        icone="trash-outline" 
+        texto="Apagar Conta" 
+        perigo 
+        onPress={() => {
+          Alert.alert(
+            "Apagar conta",
+            "Tem certeza que deseja apagar a conta?",
+            [
+              { text: "Não", style: "cancel" },
+              { 
+                text: "Sim", 
+                onPress: () => controlador.handleExcluirContaFinal(), 
+                style: "destructive" 
+              }
+            ],
+            { cancelable: true }
+          );
+        }} 
+      />
+
+      <BotaoAcao icone="log-out-outline" texto="Sair" perigo onPress={() => Alert.alert("Sair", "Função de sair")} />
     </View>
   );
 }
 
-// 🔹 COMPONENTE ITEM (AJUSTADO)
-function Item({ icon, texto, onPress, perigo = false }: any) {
+function BotaoAcao({ icone, texto, onPress, perigo = false }: { icone: any, texto: string, onPress: () => void, perigo?: boolean }) {
   return (
-    <TouchableOpacity style={styles.item} onPress={onPress}>
-      <View style={styles.itemLeft}>
+    <TouchableOpacity style={styles.itemMenu} onPress={onPress}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Ionicons 
-          name={icon} 
-          size={20} 
-          color={perigo ? '#E74C3C' : '#2C3E50'} 
-          style={{ marginRight: 10 }}
+          name={icone} 
+          size={22} 
+          color={perigo ? '#E74C3C' : '#3A6EA5'} 
+          style={{ marginRight: 15 }}
         />
         <Text style={[styles.itemTexto, perigo && { color: '#E74C3C' }]}>
           {texto}
@@ -106,9 +114,7 @@ const styles = StyleSheet.create({
   avatarTexto: { color: '#FFF', fontSize: 20, fontWeight: 'bold' },
   nome: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
   email: { color: '#D6E4F0', fontSize: 13 },
-  tituloSecao: { marginLeft: 20, marginTop: 10, marginBottom: 5, color: '#7A8FA6', fontWeight: 'bold', fontSize: 12 },
-  cardOpcoes: { backgroundColor: '#FFF', marginHorizontal: 20, borderRadius: 15, paddingHorizontal: 10 },
-  item: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14 },
-  itemLeft: { flexDirection: 'row', alignItems: 'center' },
-  itemTexto: { fontSize: 15, fontWeight: '600', color: '#2C3E50' },
+  tituloSecao: { marginLeft: 20, marginTop: 10, marginBottom: 5, fontSize: 14, fontWeight: 'bold', color: '#7A8FA6' },
+  itemMenu: { backgroundColor: '#FFF', padding: 18, marginHorizontal: 20, marginBottom: 10, borderRadius: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3 },
+  itemTexto: { fontSize: 16, fontWeight: '500', color: '#333' },
 });

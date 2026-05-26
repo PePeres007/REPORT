@@ -1,6 +1,6 @@
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 export default function TabsLayout() {
   return (
@@ -27,11 +27,13 @@ export default function TabsLayout() {
 
       {/* 2. FEED / OCORRÊNCIAS (Meio) */}
       <Tabs.Screen
-        name="minhas_denuncias"
+        name="lista_denuncias" 
         options={{
-          title: 'Ocorrências',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? "list" : "list-outline"} size={size} color={color} />
+          title: 'Minhas denúncias', 
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            
+            <Feather name="list" size={24} color={color} /> 
           ),
         }}
       />
