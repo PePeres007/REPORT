@@ -32,14 +32,16 @@ export class controladorLogin extends controladorGeral {
     }
 
     try {
-      // 1. O Firebase tenta fazer o login
+      // Dentro do seu método realizarLogin, após a autenticação com sucesso:
       await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), senha);
-      
-      // 2. Utiliza o método herdado para mostrar o sucesso
       this.exibirMensagem("Sucesso", "Login realizado!");
       
-      // 3. Utiliza o método herdado para navegação segura
-      this.substituirRota('/home');
+      // REDIRECIONAMENTO INTELIGENTE DE PERFIL
+      if (email.trim().toLowerCase().endsWith("@prefeitura.gov.br")) {
+        this.substituirRota('/home_funcionario');
+      } else {
+        this.substituirRota('/home');
+      }
       
     } catch (error: any) {
       let mensagem = "Falha na conexão com o servidor.";

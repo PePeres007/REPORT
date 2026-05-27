@@ -18,15 +18,51 @@ export interface DadosReport {
   urgencia: string;
 }
 
-// Categorias disponíveis para o report
 export const CATEGORIAS = [
-
-  { id: 'infraestrutura',       label: 'Infraestrutura', descricao: 'Buracos, iluminação...',      icone: '🚧' },
-  { id: 'meio ambiente',   label: 'Meio Ambiente', descricao: 'Poluição, queda de árvore...',  icone: '🌳' },
-  { id: 'segurança', label: 'Segurança Pública', descricao: 'Riscos, vandalismo...',      icone: '🚨' },
-  { id: 'transporte',     label: 'Transporte', descricao: 'Sinalizações, bloqueios...',      icone: '🚌' },
-  { id: 'saneamento',     label: 'Saneamento', descricao: 'Esgoto, drenagem, inundação...',    icone: '💧' },
+  { 
+    id: 'infraestrutura', 
+    label: 'Infraestrutura', 
+    descricao: 'Buracos, iluminação...', 
+    icone: '🚧',
+    orgaoSolucao: 'EMLURB / Sec. de Infraestrutura'
+  },
+  { 
+    id: 'meio ambiente', 
+    label: 'Meio Ambiente', 
+    descricao: 'Poluição, queda de árvore...', 
+    icone: '🌳',
+    orgaoSolucao: 'SEMAM / Controle Ambiental'
+  },
+  { 
+    id: 'segurança', 
+    label: 'Segurança Pública', 
+    descricao: 'Riscos, vandalismo...', 
+    icone: '🚨',
+    orgaoSolucao: 'Guarda Municipal / Defesa Civil'
+  },
+  { 
+    id: 'transporte', 
+    label: 'Transporte', 
+    descricao: 'Sinalizações, bloqueios...', 
+    icone: '🚌',
+    orgaoSolucao: 'CTTU'
+  },
+  { 
+    id: 'saneamento', 
+    label: 'Saneamento', 
+    descricao: 'Esgoto, drenagem, inundação...', 
+    icone: '💧',
+    orgaoSolucao: 'COMPESA / Limpeza Urbana'
+  },
 ];
+
+export const LISTA_ORGAOS_MUNICIPAIS = [
+  'EMLURB / Sec. de Infraestrutura',
+  'SEMAM / Controle Ambiental',
+  'Guarda Municipal / Defesa Civil',
+  'CTTU',
+  'COMPESA / Limpeza Urbana'
+]; 
 
 export class controladorReport extends controladorGeral {
   constructor(routerInstance: any) {
@@ -215,6 +251,61 @@ async salvarReport(dados: DadosReport, userId: string | null): Promise<boolean> 
       return true;
     } catch (e) {
       console.error("Erro ao resolver:", e);
+      return false;
+    }
+  }
+
+  async salvarPlanejamentoSolucao(reportId: string, dadosRelatorio: any) {
+    try {
+      const docRef = doc(db, 'denuncias', reportId);
+      await updateDoc(docRef, {
+        status: 'em_analise',
+        relatorioTecnico: {
+          orgaoSolucao: dadosRelatorio.orgaoSolucao || '',
+          orgaoAuxiliar: dadosRelatorio.orgaoAuxiliar || 'Nenhum',
+          dataPrevista: dadosRelatorio.dataPrevista || '',
+          planoSolucao: dadosRelatorio.planoSolucao || '',
+          custosEstimados: {
+            maoDeObra: parseFloat(dadosRelatorio.maoDeObra),
+            material: parseFloat(dadosRelatorio.material),
+            intervencao: parseFloat(dadosRelatorio.intervencao),
+            apoio: parseFloat(dadosRelatorio.apoio),
+          },
+          dataPlanejamento: new Date().toISOString()
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error("Erro ao salvar planejamento:", error);
+      return false;
+    }
+  }
+
+  async finalizarOcorrenciaComRelatorio(reportId: string, dadosRelatorio: any, relatorioAtual: any) {
+    try {
+      const docRef = doc(db, 'denuncias', reportId);
+      await updateDoc(docRef, {
+        status: 'resolvido',
+        relatorioTecnico: {
+          ...relatorioAtual,
+          orgaoSolucao: dadosRelatorio.orgaoSolucao || '',
+          orgaoAuxiliar: dadosRelatorio.orgaoAuxiliar || 'Nenhum',
+          dataPrevista: dadosRelatorio.dataPrevista || '',
+          planoSolucao: dadosRelatorio.planoSolucao || '',
+          custosEstimados: {
+            maoDeObra: parseFloat(dadosRelatorio.maoDeObra),
+            material: parseFloat(dadosRelatorio.material),
+            intervencao: parseFloat(dadosRelatorio.intervencao),
+            apoio: parseFloat(dadosRelatorio.apoio),
+          },
+          dataConclusao: dadosRelatorio.dataConclusao || '',
+          gastosTotais: parseFloat(dadosRelatorio.gastosTotais),
+          dataFinalizacaoDoc: new Date().toISOString()
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error("Erro ao finalizar:", error);
       return false;
     }
   }
