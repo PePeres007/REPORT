@@ -172,12 +172,15 @@ export default function MapaScreen() {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.botaoConfig}
-            onPress={acessarPainelPrefeitura}
-          >
-            <Ionicons name="briefcase" size={22} color="#1A3B5D" />
-          </TouchableOpacity>
+          
+          {usuarioLogado?.email?.endsWith('@prefeitura.gov.br') && (
+            <TouchableOpacity 
+              style={styles.botaoConfig}
+              onPress={acessarPainelPrefeitura}
+            >
+              <Ionicons name="briefcase" size={22} color="#1A3B5D" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </View>
@@ -190,7 +193,7 @@ const styles = StyleSheet.create({
   botaoLocalizacaoAtual: {
     position: 'absolute',
     right: 20,
-    bottom: 200, // Fica logo acima do painel de reportar
+    bottom: 200, 
     backgroundColor: '#FFF',
     width: 50,
     height: 50,
@@ -205,7 +208,7 @@ const styles = StyleSheet.create({
   },
   overlayBottom: {
     position: 'absolute',
-    bottom: 110, // Ajustado para não sobrepor a NavBar inferior!
+    bottom: 110, 
     alignSelf: 'center',
     width: '94%',
     backgroundColor: '#F7F9FC',
@@ -234,7 +237,7 @@ const styles = StyleSheet.create({
   },
   botaoReportar: {
     flexDirection: 'row',
-    backgroundColor: '#7B1FA2', // Ajustado para o roxo da aplicação
+    backgroundColor: '#7B1FA2', 
     paddingVertical: 16,
     paddingHorizontal: 28,
     borderRadius: 50,
