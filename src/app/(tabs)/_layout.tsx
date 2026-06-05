@@ -29,7 +29,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="lista_denuncias" 
         options={{
-          title: 'Minhas denúncias', 
+          title: 'Denúncias', 
           headerShown: false,
           tabBarIcon: ({ color }) => (
             
