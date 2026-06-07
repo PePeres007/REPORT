@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
@@ -12,11 +12,15 @@ export default function MapaScreen() {
   const controlador = new controladorHome();
   const router = useRouter();
   const mapRef = useRef<MapView>(null);
+  // Lê os parâmetros passados ao voltar de detalhes_report (coordenadas da denúncia)
+  const params = useLocalSearchParams<{ focoLat?: string; focoLon?: string }>();
   
   const [listaDenuncias, setListaDenuncias] = useState<any[]>([]);
   const [denunciaLocal, setDenunciaLocal] = useState<{ latitude: number, longitude: number } | null>(null);  
   const [usuarioLogado, setUsuarioLogado] = useState<any>(null);
   const [buscandoGps, setBuscandoGps] = useState(false);
+  // Guarda se o foco inicial já foi aplicado para não sobrescrever
+  const focoAplicado = useRef(false);
 
   useEffect(() => {
     // 1. Carrega os dados do utilizador
@@ -41,8 +45,25 @@ export default function MapaScreen() {
 
     carregarUsuario();
     buscarDados();
-    buscarLocalizacao();
+
+    // Só centraliza no GPS do usuário se não houver coordenadas de denúncia recebidas
+    if (!params.focoLat || !params.focoLon) {
+      buscarLocalizacao();
+    }
   }, []);
+
+  // Efeito separado: quando params mudam (ao voltar de detalhes), centraliza na denúncia
+  useEffect(() => {
+    if (params.focoLat && params.focoLon && mapRef.current && !focoAplicado.current) {
+      focoAplicado.current = true;
+      mapRef.current.animateToRegion({
+        latitude: parseFloat(params.focoLat),
+        longitude: parseFloat(params.focoLon),
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      }, 800);
+    }
+  }, [params.focoLat, params.focoLon]);
 
   const segurarNoMapa = (evento: any) => {
     setDenunciaLocal(evento.nativeEvent.coordinate);
@@ -122,6 +143,9 @@ export default function MapaScreen() {
                   pathname: '/detalhes_report',
                   params: {
                     id: item.id.toString(),
+                    // Passa as coordenadas para que o home possa volcar o foco ao retornar
+                    origemLat: item.latitude.toString(),
+                    origemLon: item.longitude.toString(),
                   },
                 });
               }}

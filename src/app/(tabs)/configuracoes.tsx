@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'; 
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { controladorPerfil } from '../../controllers/controlador_perfil';
 import { obterUsuario } from '../../services/userStorage';
@@ -26,7 +26,7 @@ export default function Configuracoes() {
     : '';
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
       {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
@@ -87,7 +87,7 @@ export default function Configuracoes() {
       />
 
       <BotaoAcao icone="log-out-outline" texto="Sair" perigo onPress={() => Alert.alert("Sair", "Função de sair")} />
-    </View>
+    </ScrollView>
   );
 }
 
@@ -112,6 +112,7 @@ function BotaoAcao({ icone, texto, onPress, perigo = false }: { icone: any, text
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F4F7FB' },
+  contentContainer: { paddingBottom: 40 },
   header: { backgroundColor: '#1e4e79', paddingTop: 50, paddingBottom: 20, paddingHorizontal: 15, flexDirection: 'row', alignItems: 'center' },
   headerTitulo: { color: '#FFF', fontSize: 20, fontWeight: 'bold', marginLeft: 10 },
   cardUsuario: { backgroundColor: '#3A6EA5', margin: 20, borderRadius: 20, padding: 20, flexDirection: 'row', alignItems: 'center' },

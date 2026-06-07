@@ -27,6 +27,9 @@ export default function ReportDetailsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const reportId = Array.isArray(params.id) ? params.id[0] : params.id;
+  // Coordenadas da denúncia passadas pelo home para restaurar o foco ao voltar
+  const origemLat = Array.isArray(params.origemLat) ? params.origemLat[0] : params.origemLat;
+  const origemLon = Array.isArray(params.origemLon) ? params.origemLon[0] : params.origemLon;
   const controlador = new controladorReport(router);
   const auth = getAuth();
   
@@ -217,7 +220,17 @@ const executarTransicaoStatus = async () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.cabecalho}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.botaoVoltar}>
+        <TouchableOpacity onPress={() => {
+            // Volta ao mapa passando as coordenadas para restaurar o foco
+            if (origemLat && origemLon) {
+              router.navigate({
+                pathname: '/(tabs)/home',
+                params: { focoLat: origemLat, focoLon: origemLon },
+              } as any);
+            } else {
+              router.back();
+            }
+          }} style={styles.botaoVoltar}>
           <Ionicons name="chevron-back" size={28} color={COR_PRIMARIA} />
         </TouchableOpacity>
         <Text style={styles.tituloCabecalho}>Detalhes da Ocorrência</Text>
