@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'; // 
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'; 
 
 import { controladorPerfil } from '../../controllers/controlador_perfil';
 import { obterUsuario } from '../../services/userStorage';
@@ -48,17 +48,22 @@ export default function Configuracoes() {
 
       <Text style={styles.tituloSecao}>Conta</Text>
       
-      
       <BotaoAcao icone="person-outline" texto="Editar Perfil" onPress={() => router.push('/perfil')} />
       <BotaoAcao icone="lock-closed-outline" texto="Alterar Senha" onPress={() => router.push('/alterar_senha' as any)} />
-      <BotaoAcao icone="notifications-outline" texto="Notificações" onPress={() => router.push('/notificacoes' as any)} />
+      <BotaoAcao icone="notifications-outline" texto="Central de Notificações" onPress={() => router.push('/notificacoes' as any)} />
+      
+      {/* --- NOVO BOTÃO DE ATUALIZAÇÕES / PREFERÊNCIAS DE ALERTA --- */}
+      <BotaoAcao 
+        icone="options-outline" 
+        texto="Preferências de Alertas" 
+        onPress={() => router.push('/atualizacoes' as any)} 
+      />
 
       <Text style={styles.tituloSecao}>Geral</Text>
       <BotaoAcao icone="help-circle-outline" texto="Ajuda e Suporte" onPress={() => Alert.alert("Suporte", "Em breve")} />
       <BotaoAcao icone="document-text-outline" texto="Termos de Serviço" onPress={() => Alert.alert("Termos", "Em breve")} />
 
       <Text style={styles.tituloSecao}>Ações</Text>
-      
       
       <BotaoAcao 
         icone="trash-outline" 
