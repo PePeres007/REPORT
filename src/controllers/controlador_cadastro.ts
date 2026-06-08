@@ -1,5 +1,5 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from 'firebase/firestore'; 
+import { doc, setDoc } from 'firebase/firestore';
 import { Alert } from 'react-native';
 import { auth, db } from '../services/firebaseConfig';
 import { controladorGeral } from "./controlador_geral";
@@ -158,7 +158,7 @@ export class controladorCadastro extends controladorGeral {
       });
 
       Alert.alert('Sucesso', 'Servidor público cadastrado com sucesso!');
-      this.router.back(); // Retorna à tela anterior após o sucesso
+      this.substituirRota('/login'); // Força o envio direto para a tela de login
       return true;
 
     } catch (error: any) {

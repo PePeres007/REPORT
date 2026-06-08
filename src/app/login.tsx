@@ -3,7 +3,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { salvarUsuario } from '../services/userStorage';
 
 import {
@@ -105,7 +105,7 @@ export default function Login() {
         {/* BOTÃO DE CADASTRO */}
         <TouchableOpacity
           style={styles.buttonEmailContainer}
-          onPress={() => controlador.navegarPara('/cadastro')}
+          onPress={() => controlador.navegarPara('/escolha_perfil')}
         >
           <LinearGradient
             colors={['#E2E8F0', '#FFFFFF', '#E2E8F0']}

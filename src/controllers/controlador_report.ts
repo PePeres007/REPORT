@@ -151,6 +151,31 @@ export class controladorReport extends controladorGeral {
     }
   }
 
+  public async adicionarComunicado(reportId: string, mensagem: string): Promise<boolean> {
+    try {
+      const docRef = doc(db, 'denuncias', reportId);
+      
+      // Adiciona o novo comunicado ao array 'comunicados' no Firestore
+      await updateDoc(docRef, {
+        comunicados: arrayUnion({
+          mensagem: mensagem,
+          data: new Date().toISOString()
+        })
+      });
+
+      // Dispara notificação para os cidadãos que estão monitorando essa ocorrência
+      const autorAcaoId = getAuth().currentUser?.uid;
+      await this.criarNotificacoesParaMonitorados(reportId, 'interacao', autorAcaoId);
+      
+      Alert.alert('Sucesso', 'Comunicado oficial enviado à população.');
+      return true;
+    } catch (error) {
+      console.error('Erro ao adicionar comunicado:', error);
+      Alert.alert('Erro', 'Não foi possível enviar o comunicado.');
+      return false;
+    }
+  }
+
   async salvarPlanejamentoSolucao(reportId: string, dadosRelatorio: any) {
     try {
       const docRef = doc(db, 'denuncias', reportId);

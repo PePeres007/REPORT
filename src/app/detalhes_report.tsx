@@ -2,22 +2,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getAuth } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CATEGORIAS, controladorReport, LISTA_ORGAOS_MUNICIPAIS } from '../controllers/controlador_report';
 import { db } from '../services/firebaseConfig';
 import { obterUsuario } from '../services/userStorage';
-import { CATEGORIAS, controladorReport, LISTA_ORGAOS_MUNICIPAIS } from '../controllers/controlador_report';
 
 const COR_PRIMARIA = '#7B1FA2';
 const COR_FUNDO = '#F5F0FA';
@@ -54,6 +54,15 @@ export default function ReportDetailsScreen() {
   const [gastosTotais, setGastosTotais] = useState('');
   
   const [relatorioConfirmado, setRelatorioConfirmado] = useState(false);
+
+// Estados dos Comunicados
+  const [abrirOpcoesComunicado, setAbrirOpcoesComunicado] = useState(false);
+  const opcoesComunicadosOficiais = [
+    'Ciente do problema', 
+    'Equipe a caminho', 
+    'Estamos resolvendo o problema', 
+    'Finalizando a reforma'
+  ];
 
   // Função para aplicar máscara de data DD/MM/AAAA
   const aplicarMascaraData = (texto: string) => {
@@ -266,12 +275,63 @@ const executarTransicaoStatus = async () => {
           <Text style={styles.valorEndereco}>{dados?.endereco}</Text>
           <View style={styles.divisor} />
 
-          <Text style={styles.labelSecao}>📝 Descrição do Cidadão</Text>
+<Text style={styles.labelSecao}>📝 Descrição do Cidadão</Text>
           <Text style={styles.valorDescricao}>{dados?.descricao}</Text>
-          
+
+          {/* SEÇÃO DE COMUNICADOS DA PREFEITURA */}
+          {((dados?.comunicados && dados.comunicados.length > 0) || perfilFuncionario) && (
+            <View style={styles.secaoComunicados}>
+              <Text style={styles.labelSecao}>📢 Atualizações Oficiais</Text>
+              
+              {/* Lista os comunicados existentes (visível para todos) */}
+              {dados?.comunicados?.map((comunicado: any, index: number) => {
+                const dataFormatada = new Date(comunicado.data).toLocaleDateString('pt-BR');
+                return (
+                  <View key={index} style={styles.balaoComunicado}>
+                    <Ionicons name="megaphone" size={16} color="#0284C7" />
+                    <View style={{ marginLeft: 10, flex: 1 }}>
+                      <Text style={styles.textoComunicado}>{comunicado.mensagem}</Text>
+                      <Text style={styles.dataComunicado}>{dataFormatada}</Text>
+                    </View>
+                  </View>
+                );
+              })}
+
+              {/* Botão e Dropdown para adicionar comunicados (Somente Funcionário) */}
+              {perfilFuncionario && dados.status !== 'resolvido' && (
+                <View style={{ marginTop: 10 }}>
+                  <TouchableOpacity 
+                    style={styles.botaoAdicionarComunicado}
+                    onPress={() => setAbrirOpcoesComunicado(!abrirOpcoesComunicado)}
+                  >
+                    <Text style={styles.textoBotaoComunicado}>+ Enviar Comunicado</Text>
+                  </TouchableOpacity>
+
+                  {abrirOpcoesComunicado && (
+                    <View style={styles.caixaOpcoesDropdown}>
+                      {opcoesComunicadosOficiais.map((opcao, idx) => (
+                        <TouchableOpacity 
+                          key={idx} 
+                          style={styles.opcaoItemLinha}
+                          onPress={async () => {
+                            setAbrirOpcoesComunicado(false);
+                            await controlador.adicionarComunicado(reportId as string, opcao);
+                          }}
+                        >
+                          <Text style={styles.textoOpcaoItem}>{opcao}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              )}
+            </View>
+          )}
+
           {/* ───────────────────────────────────────────────────────────────────
               PAINEL EXCLUSIVO DO FUNCIONÁRIO (FORMULÁRIOS DE RELATÓRIO)
               ─────────────────────────────────────────────────────────────────── */}
+
           {perfilFuncionario && (
             <View style={styles.containerAreaFuncionario}>
               <View style={styles.divisor} />
@@ -573,8 +633,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F1F5F9',
   },
-  textoOpcaoItem: {
+textoOpcaoItem: {
     fontSize: 13,
     color: '#334155',
   },
+  secaoComunicados: { marginTop: 15, padding: 15, backgroundColor: '#F0F9FF', borderRadius: 12, borderWidth: 1, borderColor: '#BAE6FD' },
+  balaoComunicado: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', padding: 12, borderRadius: 10, marginTop: 10, borderWidth: 1, borderColor: '#E0F2FE' },
+  textoComunicado: { fontSize: 14, fontWeight: '700', color: '#0369A1' },
+  dataComunicado: { fontSize: 11, color: '#7DD3FC', marginTop: 2 },
+  botaoAdicionarComunicado: { padding: 10, backgroundColor: '#0284C7', borderRadius: 8, alignItems: 'center' },
+  textoBotaoComunicado: { color: '#FFF', fontWeight: 'bold', fontSize: 13 },
 });
