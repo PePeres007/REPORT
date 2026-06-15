@@ -582,6 +582,17 @@ const executarTransicaoStatus = async () => {
             )
           )}
         </View>
+
+        {/* BOTÃO RELATÓRIO (só para funcionário em ocorrência resolvida) */}
+        {perfilFuncionario && dados.status === 'resolvido' && (
+          <TouchableOpacity
+            style={styles.botaoRelatorio}
+            onPress={() => router.push({ pathname: '/relatorio_obra' as any, params: { id: reportId } })}
+          >
+            <Ionicons name="bar-chart-outline" size={20} color="#FFF" />
+            <Text style={styles.textoBotaoRelatorio}>📊 Ver Relatório da Obra</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -683,4 +694,22 @@ textoOpcaoItem: {
   dataComunicado: { fontSize: 11, color: '#7DD3FC', marginTop: 2 },
   botaoAdicionarComunicado: { padding: 10, backgroundColor: '#0284C7', borderRadius: 8, alignItems: 'center' },
   textoBotaoComunicado: { color: '#FFF', fontWeight: 'bold', fontSize: 13 },
+  botaoRelatorio: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginHorizontal: 16,
+    marginTop: 14,
+    marginBottom: 10,
+    paddingVertical: 16,
+    borderRadius: 14,
+    backgroundColor: '#1E293B',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
+  textoBotaoRelatorio: { color: '#FFF', fontWeight: '800', fontSize: 15 },
 });
