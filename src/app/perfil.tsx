@@ -136,7 +136,7 @@ export default function Perfil() {
             <Feather name="chevron-right" size={20} color="#EF4444" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton} onPress={() => controlador.voltar()}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => controlador.encerrarSessao()}>
             <View style={styles.actionRow}>
               <Feather name="log-out" size={20} color="#1e4e79" />
               <Text style={styles.actionText}>sair</Text>

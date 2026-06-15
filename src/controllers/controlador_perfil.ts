@@ -1,4 +1,5 @@
 import * as ImagePicker from 'expo-image-picker';
+import { signOut } from 'firebase/auth';
 import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { Alert } from 'react-native';
@@ -121,6 +122,16 @@ export class controladorPerfil extends controladorGeral {
         } else {
             this.exibirMensagem("Erro", "Não foi possível apagar sua conta agora. Tente novamente mais tarde.");
         }
+    }
+  }
+
+  public async encerrarSessao(): Promise<void> {
+    try {
+      await signOut(auth);
+      await limparSessao();
+      this.substituirRota('/login');
+    } catch (error) {
+      this.exibirMensagem('Erro', 'Não foi possível encerrar a sessão.');
     }
   }
 }
