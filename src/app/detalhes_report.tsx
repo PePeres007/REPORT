@@ -4,17 +4,18 @@ import { getAuth } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { controladorListaDenuncias } from '../controllers/controlador_lista_denuncias';
 import { CATEGORIAS, controladorReport, LISTA_ORGAOS_MUNICIPAIS } from '../controllers/controlador_report';
 import { db } from '../services/firebaseConfig';
 import { obterUsuario } from '../services/userStorage';
@@ -230,15 +231,8 @@ const executarTransicaoStatus = async () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.cabecalho}>
         <TouchableOpacity onPress={() => {
-            // Volta ao mapa passando as coordenadas para restaurar o foco
-            if (origemLat && origemLon) {
-              router.navigate({
-                pathname: '/(tabs)/home',
-                params: { focoLat: origemLat, focoLon: origemLon },
-              } as any);
-            } else {
-              router.back();
-            }
+            // Volta para lista de denúncias
+            router.push('/(tabs)/lista_denuncias');
           }} style={styles.botaoVoltar}>
           <Ionicons name="chevron-back" size={28} color={COR_PRIMARIA} />
         </TouchableOpacity>
@@ -490,6 +484,36 @@ const executarTransicaoStatus = async () => {
           {!perfilFuncionario ? (
             /* VISÃO DO CIDADÃO COMUM */
             <>
+              {/* Botão de deletar - só aparece se for o dono da denúncia */}
+              {dados?.userId === userId && (
+                <TouchableOpacity 
+                  style={[styles.botaoAcao, { backgroundColor: '#C62828' }]} 
+                  onPress={async () => {
+                    Alert.alert(
+                      'Deletar Denúncia',
+                      'Tem certeza que deseja deletar esta denúncia? Esta ação não pode ser desfeita.',
+                      [
+                        { text: 'Cancelar', style: 'cancel' },
+                        {
+                          text: 'Deletar',
+                          style: 'destructive',
+                          onPress: async () => {
+                            const controladorLista = new controladorListaDenuncias(router);
+                            const sucesso = await controladorLista.deletarDenuncia(reportId as string);
+                            if (sucesso) {
+                              router.replace('/(tabs)/lista_denuncias');
+                            }
+                          }
+                        }
+                      ]
+                    );
+                  }}
+                >
+                  <Ionicons name="trash-outline" size={20} color="#FFF" />
+                  <Text style={styles.textoBotao}>Deletar</Text>
+                </TouchableOpacity>
+              )}
+              
               <TouchableOpacity style={[styles.botaoAcao, styles.botaoApoiar]} onPress={() => controlador.apoiarDenuncia(reportId, userId)}>
                 <Ionicons name="megaphone-outline" size={20} color="#FFF" />
                 <Text style={styles.textoBotao}>Apoiar ({dados?.apoiadores?.length || 0})</Text>

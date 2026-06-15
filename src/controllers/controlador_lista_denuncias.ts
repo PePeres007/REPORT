@@ -1,7 +1,7 @@
 // src/controllers/controlador_lista_denuncias.ts
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import * as Location from 'expo-location';
-import { db, auth } from '../services/firebaseConfig';
+import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, where } from 'firebase/firestore';
+import { auth, db } from '../services/firebaseConfig';
 import { controladorGeral } from './controlador_geral';
 
 export class controladorListaDenuncias extends controladorGeral {
@@ -87,5 +87,39 @@ export class controladorListaDenuncias extends controladorGeral {
 
   public verDetalhes(id: string) {
     this.navegarPara(`/detalhes_report?id=${id}`);
+  }
+
+  public async deletarDenuncia(denunciaId: string): Promise<boolean> {
+    try {
+      const usuarioAtual = auth.currentUser;
+      if (!usuarioAtual) {
+        this.exibirMensagem("Erro", "Você precisa estar logado para deletar uma denúncia.");
+        return false;
+      }
+
+      // Verificar se o usuário é o dono da denúncia
+      const docRef = doc(db, 'denuncias', denunciaId);
+      const docSnap = await getDoc(docRef);
+      
+      if (!docSnap.exists()) {
+        this.exibirMensagem("Erro", "Denúncia não encontrada.");
+        return false;
+      }
+
+      const denunciaData = docSnap.data();
+      if (denunciaData.userId !== usuarioAtual.uid) {
+        this.exibirMensagem("Erro", "Você só pode deletar denúncias que você criou.");
+        return false;
+      }
+
+      // Deletar a denúncia
+      await deleteDoc(docRef);
+      this.exibirMensagem("Sucesso", "Denúncia deletada com sucesso!");
+      return true;
+    } catch (error: any) {
+      console.error("Erro ao deletar denúncia:", error);
+      this.exibirMensagem("Erro", "Não foi possível deletar a denúncia.");
+      return false;
+    }
   }
 }

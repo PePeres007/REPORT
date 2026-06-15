@@ -166,7 +166,7 @@ export default function ReportScreen() {
     }
     setEnviando(true);
     const auth = getAuth();
-    const userId = auth.currentUser?.uid ?? null;
+    const userId = auth.currentUser?.uid ?? 'anonimo';
     const sucesso = await controlador.salvarReport(
       {
         categoria: categoria!,
