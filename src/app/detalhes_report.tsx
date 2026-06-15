@@ -4,15 +4,15 @@ import { getAuth } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { controladorListaDenuncias } from '../controllers/controlador_lista_denuncias';
@@ -142,7 +142,11 @@ export default function ReportDetailsScreen() {
         }
       } else {
         Alert.alert("Erro", "Denúncia não encontrada.");
-        router.back();
+        if (perfilFuncionario) {
+          router.replace('/(tabs_funcionario)/home_funcionario');
+        } else {
+          router.replace('/(tabs)/lista_denuncias');
+        }
       }
       setCarregando(false);
     });
@@ -210,7 +214,11 @@ const executarTransicaoStatus = async () => {
     setCarregando(false);
     if (resultado) {
       Alert.alert("Fase Concluída!", "O andamento deste chamado foi atualizado no banco municipal.");
-      router.back();
+      if (perfilFuncionario) {
+        router.replace('/(tabs_funcionario)/home_funcionario');
+      } else {
+        router.replace('/(tabs)/lista_denuncias');
+      }
     } else {
       Alert.alert("Erro", "Falha de rede ao sincronizar com o Firestore.");
     }
@@ -231,8 +239,12 @@ const executarTransicaoStatus = async () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.cabecalho}>
         <TouchableOpacity onPress={() => {
-            // Volta para lista de denúncias
-            router.push('/(tabs)/lista_denuncias');
+            // Volta para a página apropriada baseado no perfil
+            if (perfilFuncionario) {
+              router.push('/(tabs_funcionario)/home_funcionario');
+            } else {
+              router.push('/(tabs)/lista_denuncias');
+            }
           }} style={styles.botaoVoltar}>
           <Ionicons name="chevron-back" size={28} color={COR_PRIMARIA} />
         </TouchableOpacity>
@@ -501,7 +513,11 @@ const executarTransicaoStatus = async () => {
                             const controladorLista = new controladorListaDenuncias(router);
                             const sucesso = await controladorLista.deletarDenuncia(reportId as string);
                             if (sucesso) {
-                              router.replace('/(tabs)/lista_denuncias');
+                              if (perfilFuncionario) {
+                                router.replace('/(tabs_funcionario)/home_funcionario');
+                              } else {
+                                router.replace('/(tabs)/lista_denuncias');
+                              }
                             }
                           }
                         }

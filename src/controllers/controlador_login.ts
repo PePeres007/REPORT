@@ -38,9 +38,9 @@ export class controladorLogin extends controladorGeral {
       
       // REDIRECIONAMENTO INTELIGENTE DE PERFIL
       if (email.trim().toLowerCase().endsWith("@prefeitura.gov.br")) {
-        this.substituirRota('/home_funcionario');
+        this.substituirRota('/(tabs_funcionario)/home_funcionario');
       } else {
-        this.substituirRota('/home');
+        this.substituirRota('/(tabs)/home');
       }
       
     } catch (error: any) {
