@@ -119,7 +119,7 @@ export default function Cadastro() {
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, padding: 30, justifyContent: 'center' },
+  container: { flexGrow: 1, padding: 30, paddingTop: 40 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 15, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
   backButton: { padding: 5 },
   headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1A1A1A' },

@@ -201,10 +201,10 @@ export default function ReportScreen() {
       // —— PASSO 1: CATEGORIA ——————————————————————————————————————————————————————
       case 1:
         return (
-          <View style={styles.conteudoPasso}>
+          <View style={[styles.conteudoPasso, { flex: 1 }]}>
             <Text style={styles.tituloPasso}>Qual é o tipo do problema?</Text>
             <Text style={styles.subtituloPasso}>Selecione a categoria que melhor descreve a situação.</Text>
-            <ScrollView contentContainerStyle={styles.listaCategorias} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={styles.listaCategorias} showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
               {CATEGORIAS.map((cat) => (
                 <TouchableOpacity
                   key={cat.id}
@@ -358,7 +358,7 @@ export default function ReportScreen() {
             <Text style={styles.contadorCaracteres}>{descricao.length}/500</Text>
             {/* --- SEÇÃO NÍVEL DE URGÊNCIA --- */}
             <Text style={styles.labelCampo}>Nível de urgência</Text>
-            <View style={styles.containerUrgencia}>
+            <View style={[styles.containerUrgencia, { marginBottom: 30 }]}>
               {[
                 { id: 'Leve', cor: '#4CAF50', fundo: '#E8F5E9', icone: '🟢' },
                 { id: 'Médio', cor: '#FFB300', fundo: '#FFF8E1', icone: '🟡' },
@@ -439,7 +439,7 @@ export default function ReportScreen() {
       >
         <ScrollView
           style={{ flex: 1 }}
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+          contentContainerStyle={{ paddingBottom: 30 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -585,6 +585,7 @@ const styles = StyleSheet.create({
   conteudoPasso: {
     paddingHorizontal: 20,
     paddingTop: 24,
+    paddingBottom: 20,
   },
   tituloPasso: {
     fontSize: 22,

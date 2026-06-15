@@ -50,7 +50,7 @@ export default function Perfil() {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Feather name="chevron-left" size={28} color="#FFF" />

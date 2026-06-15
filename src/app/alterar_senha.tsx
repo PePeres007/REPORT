@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { controladorAlterarSenha } from '../controllers/controlador_alterar_senha';
 
 export default function AlterarSenha() {
@@ -19,17 +19,22 @@ export default function AlterarSenha() {
         <Text style={styles.headerTitle}>Segurança</Text>
       </View>
 
-      <View style={styles.content}>
-        <Text style={styles.label}>SENHA ATUAL</Text>
-        <TextInput style={styles.input} secureTextEntry value={atual} onChangeText={setAtual} />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <Text style={styles.label}>SENHA ATUAL</Text>
+          <TextInput style={styles.input} secureTextEntry value={atual} onChangeText={setAtual} />
 
-        <Text style={styles.label}>NOVA SENHA</Text>
-        <TextInput style={styles.input} secureTextEntry value={nova} onChangeText={setNova} />
+          <Text style={styles.label}>NOVA SENHA</Text>
+          <TextInput style={styles.input} secureTextEntry value={nova} onChangeText={setNova} />
 
-        <TouchableOpacity style={styles.btn} onPress={() => controlador.confirmarTroca(atual, nova)}>
-          <Text style={styles.btnTexto}>Atualizar Senha</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.btn} onPress={() => controlador.confirmarTroca(atual, nova)}>
+            <Text style={styles.btnTexto}>Atualizar Senha</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }

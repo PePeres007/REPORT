@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: '#FFFFFF',
     padding: 30,
-    justifyContent: 'center',
+    paddingTop: 60,
   },
   title: {
     fontSize: 28,
