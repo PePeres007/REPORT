@@ -1,9 +1,10 @@
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { signOut } from 'firebase/auth';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert, // Importação do componente Alert para gerenciar a confirmação
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -12,16 +13,20 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { auth } from '../services/firebaseConfig';
+import { limparSessao } from '../services/userStorage';
 import { controladorPerfil } from '../controllers/controlador_perfil';
 
 export default function Perfil() {
   const router = useRouter();
-  const controlador = new controladorPerfil(router);
+  // useMemo garante que o controlador não é recriado a cada render (evita router stale)
+  const controlador = useMemo(() => new controladorPerfil(router), []);
 
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [foto, setFoto] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
+  const [saindo, setSaindo] = useState(false);
 
   useEffect(() => {
     const carregar = async () => {
@@ -39,6 +44,32 @@ export default function Perfil() {
   const handleTrocarFoto = async () => {
     const uri = await controlador.alterarFoto();
     if (uri) setFoto(uri);
+  };
+
+  // Logout direto na View usando o router atual — evita qualquer problema de referência stale
+  const handleSair = () => {
+    Alert.alert(
+      'Sair da conta',
+      'Tem certeza que deseja sair?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Sair',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setSaindo(true);
+              await signOut(auth);
+              await limparSessao();
+              router.replace('/login' as any);
+            } catch (error) {
+              setSaindo(false);
+              Alert.alert('Erro', 'Não foi possível encerrar a sessão. Tente novamente.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   if (carregando) {
@@ -81,15 +112,15 @@ export default function Perfil() {
           <Text style={styles.label}>E-MAIL</Text>
           <TextInput style={styles.input} value={email} editable={false} />
 
-          <TouchableOpacity 
-            style={styles.btnSalvar} 
+          <TouchableOpacity
+            style={styles.btnSalvar}
             onPress={() => controlador.salvarAlteracoes(nome, foto)}
           >
             <Text style={styles.btnTexto}>Salvar Alterações</Text>
           </TouchableOpacity>
         </View>
 
-        {/* LISTA DE AÇÕES INFERIORES */}
+        {/* LISTA DE AÇÕES */}
         <View style={styles.actionsContainer}>
           <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/notificacoes' as any)}>
             <View style={styles.actionRow}>
@@ -107,23 +138,16 @@ export default function Perfil() {
             <Feather name="chevron-right" size={20} color="#94A3B8" />
           </TouchableOpacity>
 
-          {/* BOTÃO APAGAR CONTA COM CONFIRMAÇÃO REAL */}
-          <TouchableOpacity 
-            style={styles.actionButton} 
+          {/* APAGAR CONTA */}
+          <TouchableOpacity
+            style={styles.actionButton}
             onPress={() => {
               Alert.alert(
-                "Apagar conta",
-                "Tem certeza que deseja apagar a conta?",
+                'Apagar conta',
+                'Tem certeza que deseja apagar a conta?',
                 [
-                  { 
-                    text: "Não", 
-                    style: "cancel" 
-                  },
-                  { 
-                    text: "Sim", 
-                    onPress: () => controlador.handleExcluirContaFinal(), 
-                    style: "destructive" 
-                  }
+                  { text: 'Não', style: 'cancel' },
+                  { text: 'Sim', onPress: () => controlador.handleExcluirContaFinal(), style: 'destructive' }
                 ],
                 { cancelable: true }
               );
@@ -135,15 +159,24 @@ export default function Perfil() {
             </View>
             <Feather name="chevron-right" size={20} color="#EF4444" />
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton} onPress={() => controlador.encerrarSessao()}>
-            <View style={styles.actionRow}>
-              <Feather name="log-out" size={20} color="#1e4e79" />
-              <Text style={styles.actionText}>sair</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="#94A3B8" />
-          </TouchableOpacity>
         </View>
+
+        {/* BOTÃO SAIR — destacado e separado para máxima visibilidade no iPhone mini */}
+        <TouchableOpacity
+          style={[styles.btnSair, saindo && { opacity: 0.6 }]}
+          onPress={handleSair}
+          disabled={saindo}
+          activeOpacity={0.8}
+        >
+          {saindo ? (
+            <ActivityIndicator color="#FFF" size="small" />
+          ) : (
+            <>
+              <Feather name="log-out" size={20} color="#FFF" />
+              <Text style={styles.btnSairTexto}>Sair da conta</Text>
+            </>
+          )}
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -165,7 +198,38 @@ const styles = StyleSheet.create({
   btnSalvar: { backgroundColor: '#1e4e79', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 25, marginBottom: 30 },
   btnTexto: { color: '#FFF', fontWeight: 'bold', fontSize: 16 },
   actionsContainer: { width: '100%' },
-  actionButton: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFF', padding: 18, borderRadius: 12, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 },
+  actionButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    padding: 18,
+    borderRadius: 12,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
   actionRow: { flexDirection: 'row', alignItems: 'center' },
   actionText: { fontSize: 16, fontWeight: '500', color: '#1e4e79', marginLeft: 15 },
+  // Botão sair: visual vermelho destacado, separado dos outros itens
+  btnSair: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    backgroundColor: '#DC2626',
+    paddingVertical: 17,
+    borderRadius: 14,
+    marginTop: 20,
+    elevation: 3,
+    shadowColor: '#DC2626',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  btnSairTexto: { color: '#FFF', fontSize: 16, fontWeight: '800', letterSpacing: 0.3 },
 });
