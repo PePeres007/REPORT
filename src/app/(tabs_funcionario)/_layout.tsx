@@ -35,9 +35,9 @@ export default function TabsFuncionarioLayout() {
       />
 
       <Tabs.Screen
-        name="faq" 
+        name="Ouvidoria" 
         options={{
-          title: 'Ajuda', 
+          title: 'Ouvidoria', 
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons name={focused ? "help-circle" : "help-circle-outline"} size={size} color={color} />
           ),
