@@ -38,6 +38,16 @@ export default function TabsLayout() {
         }}
       />
 
+      <Tabs.Screen
+        name="faq" 
+        options={{
+          title: 'Ouvidoria', 
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? "chatbubbles" : "chatbubbles-outline"} size={size} color={color} />
+          ),
+        }}
+      />
+
       {/* 3. CONFIGURAÇÕES / PERFIL (Extrema Direita) */}
       <Tabs.Screen
         name="configuracoes"

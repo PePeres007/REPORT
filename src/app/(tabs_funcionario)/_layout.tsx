@@ -33,6 +33,16 @@ export default function TabsFuncionarioLayout() {
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="faq" 
+        options={{
+          title: 'Ajuda', 
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? "help-circle" : "help-circle-outline"} size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
