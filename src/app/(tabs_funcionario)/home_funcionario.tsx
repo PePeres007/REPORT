@@ -2,7 +2,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { controladorHomeFuncionario } from '../../controllers/controlador_home_funcionario';
 import { CATEGORIAS } from '../../controllers/controlador_report';
@@ -18,6 +18,14 @@ export default function HomeFuncionario() {
   const [bairrosDisponiveis, setBairrosDisponiveis] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [mostrarPainelFiltros, setMostrarPainelFiltros] = useState(true);
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const aoAtualizar = async () => {
+    setRefreshing(true);
+    await carregarDadosIniciais();
+    setRefreshing(false);
+  };
 
   // MATRIZ DE ESTADOS DOS FILTROS
   const [abaAtiva, setAbaAtiva] = useState<AbaAvanco>('pendente'); // Sub-página ativa
@@ -196,6 +204,9 @@ export default function HomeFuncionario() {
           renderItem={renderCardReport}
           contentContainerStyle={styles.listaContainer}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={aoAtualizar} colors={['#1E293B']} />
+          }
           ListEmptyComponent={
             <View style={styles.centerVazio}>
               <Ionicons name="options-outline" size={44} color="#94A3B8" />
