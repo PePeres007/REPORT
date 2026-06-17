@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Modal, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../../services/firebaseConfig';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { ControladorFAQ, FAQItem } from '../../controllers/controlador_faq';
+import { auth, db } from '../../services/firebaseConfig';
 
 export default function Faq() {
   const [perfilUsuario, setPerfilUsuario] = useState<string>('cidadao'); 
@@ -190,6 +190,7 @@ export default function Faq() {
             <TextInput
               style={styles.input}
               placeholder={perfilUsuario === 'cidadao' ? "Ex: Como solicito a poda de uma árvore?" : "Escreva a pergunta..."}
+              placeholderTextColor="#94A3B8"
               value={inputPergunta}
               onChangeText={setInputPergunta}
               multiline
