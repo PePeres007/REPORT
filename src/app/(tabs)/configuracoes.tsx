@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { controladorPerfil } from '../../controllers/controlador_perfil';
@@ -24,8 +24,8 @@ export default function Configuracoes() {
   }, []);
 
   const iniciais = usuario?.nome
-    ? usuario.nome.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
-    : '';
+  ? usuario.nome.trim().split(/\s+/).map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
+  : '';
 
   // Logout real — chama diretamente signOut + limparSessao + navegação
   const handleSair = () => {
