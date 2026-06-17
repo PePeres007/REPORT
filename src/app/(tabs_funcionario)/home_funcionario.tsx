@@ -61,7 +61,7 @@ export default function HomeFuncionario() {
         <View style={styles.cardHeader}>
           <View style={styles.categoriaRow}>
             <Text style={styles.categoriaIcone}>{dadosCategoria?.icone || '📍'}</Text>
-            <Text style={styles.categoriaLabel}>{dadosCategoria?.label || 'Outros'}</Text>
+            <Text style={styles.categoriaLabel} numberOfLines={1} ellipsizeMode="tail">{dadosCategoria?.label || 'Outros'}</Text>
           </View>
           <View style={[styles.badgePrioridade, { borderColor: corUrgencia }]}>
             <Text style={[styles.textoPrioridade, { color: corUrgencia }]}>● {item.urgencia}</Text>
